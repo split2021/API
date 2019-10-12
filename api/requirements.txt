@@ -1,5 +1,5 @@
 comtypes==1.1.7
-Django==2.2.2
+Django==2.2.4
 django-jet==1.0.8
 django-prettyjson==0.4.1
 gunicorn==19.9.0
