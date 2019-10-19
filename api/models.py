@@ -103,11 +103,11 @@ class PaymentMethod(models.Model):
     class Meta:
         pass
 
-    
+
 class GroupMembership(models.Model):
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    
+    group = models.ForeignKey("Group", on_delete=models.CASCADE)
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+
 
 class Group(models.Model, JsonizableMixin):
     """
