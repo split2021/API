@@ -53,9 +53,9 @@ LOGGING = {
 # Application definition
 
 INSTALLED_APPS = [
-#    'jet.dashboard',
-#    'jet',
-    'django.contrib.admin',
+    'jet.dashboard',
+    'jet',
+    #'django.contrib.admin',
     'split.apps.SplitAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -181,8 +181,8 @@ MEDIA_ROOT = BASE_DIR + MEDIA_URL
 
 # Jet
 
-#JET_INDEX_DASHBOARD = 'split_dashboard.dashboard.SplitIndexDashboard'
-#JET_APP_INDEX_DASHBOARD = 'split_dashboard.dashboard.SplitIndexDashboard'
+JET_INDEX_DASHBOARD = 'split_dashboard.dashboard.SplitIndexDashboard'
+JET_APP_INDEX_DASHBOARD = 'split_dashboard.dashboard.SplitIndexDashboard'
 
 JET_THEMES = [
     {
