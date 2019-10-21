@@ -21,8 +21,8 @@ import api.urls as api
 
 urlpatterns = [
     #path('admin/', admin.site.urls),
-    #path('dashboard/', split.urls),
+    path('dashboard/', split.urls),
     path('api/', include(api)),
-    #path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
-    #path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
+    path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
+    path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),  # Django JET dashboard URLS
 ]
