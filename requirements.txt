@@ -1,6 +1,6 @@
 comtypes==1.1.7
 Django==2.2.4
-django-jet==1.0.8
+django-jet
 django-prettyjson==0.4.1
 gunicorn==19.9.0
 psycopg2==2.8.3
