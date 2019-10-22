@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-from django.db.models.signals import pre_migrate
+from django.db.models.signals import pre_init
 
 
 def create_hstore(sender, **kwargs):
@@ -10,4 +10,4 @@ class ApiConfig(AppConfig):
     name = 'api'
 
     def ready(self):
-        pre_migrate.connect(create_hstore, sender=self)
+        pre_init.connect(create_hstore, sender=self)
