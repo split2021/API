@@ -1,13 +1,12 @@
 from django.apps import AppConfig
-from django.db.models.signals import pre_init
 
+from django.db import connection
 
-def create_hstore(sender, **kwargs):
-    cursor = connection.cursor()
-    cursor.execute("CREATE EXTENSION IF NOT EXISTS hstore")
 
 class ApiConfig(AppConfig):
     name = 'api'
 
     def ready(self):
-        pre_init.connect(create_hstore, sender=self)
+        print("Create HSTORE")
+        with connection.cursor() as cursor:
+            cursor.execute("CREATE EXTENSION IF NOT EXISTS hstore")
