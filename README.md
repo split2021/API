@@ -1,5 +1,9 @@
 # API
 
+## Documentation
+
+The API endpoints documentation can be found [here](https://documenter.getpostman.com/view/6975668/S1EUtFTJ?version=latest)
+
 ## Application files description
 
 **Note**:
