@@ -6,8 +6,8 @@ The API endpoints documentation can be found [here](https://documenter.getpostma
 
 ## Startup
 
-*The docker-compose.yml file provided is only working for a *
-*development environment.*
+**The docker-compose.yml file provided is only working for a **
+**development environment.**
 
 Use `docker-compose up` to start the container
 and `docker-compose down` to stop it
