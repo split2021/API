@@ -9,9 +9,16 @@ import django.contrib.postgres.fields as postgres
 from prettyjson import PrettyJSONWidget
 
 from split.admin import split
-from api.models import User, Group, PaymentMethod, Log
+from api.models import User, Group, PaymentMethod, Log, GroupMembership
 
 # Register your models here.
+
+class GroupMembershipInline(admin.TabularInline):
+    """
+    """
+
+    model = GroupMembership
+    extra = 1
 
 @admin.register(User, site=split)
 class UserAdmin(DjangoUserAdmin):
@@ -36,6 +43,7 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
+    inlines = (GroupMembershipInline,)
 
 
 @admin.register(PaymentMethod, site=split)
@@ -85,6 +93,7 @@ class GroupAdmin(admin.ModelAdmin):
     filter_horizontal = ('users',)
     list_filter = (IsGroupEmptyListFilter,)
     search_fields = ('name',)
+    inlines = (GroupMembershipInline,)
 
     def users_count(self, instance):
         return instance.users.count()
