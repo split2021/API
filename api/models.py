@@ -15,6 +15,8 @@ class JsonizableMixin(object):
             field = getattr(self, fieldname)
             if issubclass(field.__class__, models.manager.BaseManager):
                 value = [{'id': related.id, 'url': related.url(request)} for related in field.all()]
+            elif hasattr(field, 'id'):
+                value = {'id': field.id, 'url': field.url(request)}
             elif callable(field):
                 value = field()
             else:
@@ -29,6 +31,9 @@ class JsonizableMixin(object):
             return f"http://{request.get_host()}/api/{self._meta.verbose_name_plural}/{self.id}"
         else:
             return f"/api/{self._meta.verbose_name_plural}/{self.id}"
+
+    def __repr__(self):
+        return repr(self.json())
 
 class UserManager(BaseUserManager):
     """
@@ -86,7 +91,7 @@ class User(AbstractUser, JsonizableMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
 
-    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'groups']
+    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups']
 
     objects = UserManager()
 
@@ -104,9 +109,11 @@ class PaymentMethod(models.Model):
         pass
 
 
-class GroupMembership(models.Model):
+class GroupMembership(models.Model, JsonizableMixin):
     group = models.ForeignKey("Group", on_delete=models.CASCADE)
     user = models.ForeignKey("User", on_delete=models.CASCADE)
+
+    json_fields = ['group', 'user']
 
 
 class Group(models.Model, JsonizableMixin):
@@ -115,12 +122,15 @@ class Group(models.Model, JsonizableMixin):
     """
 
     name = models.CharField(max_length=42)
-    users = models.ManyToManyField("User", blank=True, through="GroupMembership", through_fields=('group', 'user')) #, related_name="groups"
+    users = models.ManyToManyField("User", blank=True, through="GroupMembership", through_fields=('group', 'user'), related_name="payment_groups")
 
     json_fields = ['name', 'users']
 
     class Meta:
         pass
+
+    def __str__(self):
+        return self.name
 
 
 class LogManager(models.Manager):
