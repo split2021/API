@@ -35,6 +35,7 @@ class JsonizableMixin(object):
     def __repr__(self):
         return repr(self.json())
 
+
 class UserManager(BaseUserManager):
     """
     Define a model manager for User model with no username field
@@ -126,11 +127,11 @@ class Group(models.Model, JsonizableMixin):
 
     json_fields = ['name', 'users']
 
-    class Meta:
-        pass
-
     def __str__(self):
         return self.name
+
+    class Meta:
+        pass
 
 
 class LogManager(models.Manager):

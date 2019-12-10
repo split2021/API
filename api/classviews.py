@@ -3,6 +3,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 import json
 import base64
@@ -22,6 +23,18 @@ class APIView(View):
     authentification = True
     safe_methods = ('head', 'options', 'get')
     implemented_methods = ()
+
+    match_table = {
+        'GET': "view",
+        'PATCH': "change",
+        'POST': "add",
+        'PUT': "add",
+        'DELETE': "delete"
+    }
+
+    def __init__(self, *args, **kwargs):
+        self.verbose_name = self.model._meta.verbose_name
+        super().__init__(*args, **kwargs)
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
@@ -56,6 +69,13 @@ class APIView(View):
 
             decoded_payload = base64.b64decode(payload + b"====")
             json_payload = json.loads(decoded_payload)
+
+            if not 'uid' in json_payload:
+                return InvalidToken("No associated user")
+            user = get_user_model().objects.get(id=json_payload['uid'])
+
+            if not user.has_perm(f'api.{self.match_table[request.method]}_{self.model._meta.verbose_name}'):
+                return NotAllowed()
 
             if not 'time' in json_payload:
                 return InvalidToken("Invalid payload")

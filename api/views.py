@@ -20,7 +20,12 @@ class LoginView(APIView):
         json_data = json.loads(data)
         user = authenticate(username=json_data['email'], password=json_data['password'])
         if user is not None:
-            return APIResponse(200, "User logged in", {'token': str(Token({'time': int(time.time())}))})
+            return APIResponse(200, "User logged in", {
+                'token': str(Token({
+                                'time': int(time.time()),
+                                'uid': user.id
+                            }))
+            })
         else:
             return APIResponse(401, "Wrong user credentials")
 
@@ -29,8 +34,8 @@ class UserView(SingleObjectAPIView):
 
 class UsersView(MultipleObjectsAPIView):
     model = User
-    
-    
+
+
 class GroupMembershipView(SingleObjectAPIView):
     model = GroupMembership
 
