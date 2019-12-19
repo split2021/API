@@ -14,7 +14,7 @@ class JsonizableMixin(object):
         for fieldname in self.json_fields:
             field = getattr(self, fieldname)
             if issubclass(field.__class__, models.manager.BaseManager):
-                value = [{'id': related.id, 'url': related.url(request)} for related in field.all()]
+                value = [{'id': related.id, 'url': related.url(request)} for related in field.all().only('id')]
             elif hasattr(field, 'id'):
                 value = {'id': field.id, 'url': field.url(request)}
             elif callable(field):

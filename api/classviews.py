@@ -22,7 +22,7 @@ class APIView(View):
     model = None
     authentification = True
     safe_methods = ('head', 'options', 'get')
-    implemented_methods = ()
+    implemented_methods = ('head', 'options', 'get')
 
     match_table = {
         'GET': "view",
@@ -33,8 +33,15 @@ class APIView(View):
     }
 
     def __init__(self, *args, **kwargs):
-        self.verbose_name = self.model._meta.verbose_name
-        super().__init__(*args, **kwargs)
+        if self.model:
+            self.verbose_name = self.model._meta.verbose_name
+            self.verbose_name_plural = self.model._meta.verbose_name_plural
+
+        response = APIResponse(204, "Possible options")
+        response['Allow'] = ", ".join(self.implemented_methods)
+        self.options_response = response
+
+        super(APIView, self).__init__(*args, **kwargs)
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
@@ -74,7 +81,7 @@ class APIView(View):
                 return InvalidToken("No associated user")
             user = get_user_model().objects.get(id=json_payload['uid'])
 
-            if not user.has_perm(f'api.{self.match_table[request.method]}_{self.model._meta.verbose_name}'):
+            if not user.has_perm(f'api.{self.match_table[request.method]}_{self.verbose_name}'):
                 return NotAllowed()
 
             if not 'time' in json_payload:
@@ -83,6 +90,8 @@ class APIView(View):
             now = time.time()
 
             if now - token_time < 3600:
+                kwargs['limit'] = int(request.GET.get("limit", 100))
+                kwargs['return_'] = int(request.GET.get("return", False))
                 return super(APIView, self).dispatch(request, *args, **kwargs)
             else:
                 return TokenExpired()
@@ -100,9 +109,7 @@ class APIView(View):
         """
          Return possible verbs for this endpoint
         """
-        response = APIResponse(204, "Possible options")
-        response['Allow'] = ", ".join(self.implemented_methods)
-        return response
+        return self.options_response
 
     def get(self, request, *args, **kwargs):
         """
@@ -160,58 +167,58 @@ class SingleObjectAPIView(APIView):
     def get(self, request, *args, **kwargs):
         try:
             object_ = self.model.objects.get(id=kwargs['id'])
-            return APIResponse(200, f"{self.model._meta.verbose_name} retrieved successfully", object_.json(request))
+            return APIResponse(200, f"{self.verbose_name} retrieved successfully", object_.json(request))
         except ObjectDoesNotExist:
-            return APIResponse(404, f"{self.model._meta.verbose_name} not found")
+            return APIResponse(404, f"{self.verbose_name} not found")
 
-    def patch(self, request, *args, **kwargs):
+    def patch(self, request, return_, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
-            return APIResponse(204, f"A content is required to update {self.model._meta.verbose_name}")
+            return APIResponse(204, f"A content is required to update {self.verbose_name}")
         data = request.body.decode('utf-8')
         json_data = json.loads(data)
         object_ = self.model.objects.filter(id=kwargs['id'])
         if object_.count():
             object_.update(**json_data)
-            return APIResponse(200, f"{self.model._meta.verbose_name} updated successfully", object_.first().json(request))
+            return APIResponse(200, f"{self.verbose_name} updated successfully", object_.first().json(request) and return_)
         else:
-            return APIResponse(404, f"{self.model._meta.verbose_name} not found")
+            return APIResponse(404, f"{self.verbose_name} not found")
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, return_, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
-            return APIResponse(204, f"A content is required to create {self.model._meta.verbose_name}")
+            return APIResponse(204, f"A content is required to create {self.verbose_name}")
         data = request.body.decode('utf-8')
         json_data = json.loads(data)
         object_, created = self.model.objects.get_or_create(**json_data)
         if created:
-            return APIResponse(201, f"{self.model._meta.verbose_name} created successfully", object_.json(request))
+            return APIResponse(201, f"{self.verbose_name} created successfully", object_.json(request) and return_)
         else:
-            return APIResponse(409, f"{self.model._meta.verbose_name} already exist", object_.json(request))
+            return APIResponse(409, f"{self.verbose_name} already exist", object_.json(request) and return_)
 
     def put(self, request, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
-            return APIResponse(204, f"A content is required to emplace {self.model._meta.verbose_name}")
+            return APIResponse(204, f"A content is required to emplace {self.verbose_name}")
         data = request.body.decode('utf-8')
         try:
             json_data = json.loads(data)
-            object_ = self.model.objects.get(id=kwargs['id'])
             json_data.pop('id', None)
+            object_ = self.model.objects.get(id=kwargs['id'])
             for key, value in json_data.items():
                 setattr(object_, key, value)
             object_.save()
-            return APIResponse(200, f"{self.model._meta.verbose_name} updated successfully", object_.json(request))
+            return APIResponse(200, f"{self.verbose_name} updated successfully", object_.json(request) and return_)
         except ObjectDoesNotExist:
             object_ = self.model(**json_data)
             object_.id = kwargs['id']
             object_.save()
-            return APIResponse(200, f"{self.model._meta.verbose_name} created successfully", object_.json(request))
+            return APIResponse(200, f"{self.verbose_name} created successfully", object_.json(request) and return_)
 
     def delete(self, request, *args, **kwargs):
         try:
             object_ = self.model.objects.get(id=kwargs['id'])
             object_.delete()
-            return APIResponse(200, f"{self.model._meta.verbose_name} deleted successfully", object_.json(request))
+            return APIResponse(200, f"{self.verbose_name} deleted successfully", object_.json(request) and return_)
         except ObjectDoesNotExist:
-            return APIResponse(404, f"{self.model._meta.verbose_name} not found")
+            return APIResponse(404, f"{self.verbose_name} not found")
 
 
 class MultipleObjectsAPIView(APIView):
@@ -220,20 +227,20 @@ class MultipleObjectsAPIView(APIView):
     """
     implemented_methods = ('get', 'post')
 
-    def get(self, request, *args, **kwargs):
-        objects = self.model.objects.all()
-        return APIResponse(200, f"{self.model._meta.verbose_name_plural} retrieved successfully", [object_.json(request) for object_ in objects])
+    def get(self, request, limit, *args, **kwargs):
+        objects = self.model.objects.all()[:limit]
+        return APIResponse(200, f"{self.verbose_name_plural} retrieved successfully", [object_.json(request) for object_ in objects])
 
     def patch(self, request, *args, **kwargs):
         return NotAllowed()
 
     def post(self, request, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
-            return APIResponse(204, f"A content is required to create {self.model._meta.verbose_name}")
+            return APIResponse(204, f"A content is required to create {self.verbose_name_plural}")
         data = request.body.decode('utf-8')
         json_data = json.loads(data)
         object_ = self.model.objects.create(**json_data)
-        return APIResponse(201, f"{self.model._meta.verbose_name} created successfully", object_.json(request))
+        return APIResponse(201, f"{self.verbose_name_plural} created successfully", object_.json(request) and return_)
 
     def put(self, request, *args, **kwargs):
         return NotAllowed()

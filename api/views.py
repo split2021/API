@@ -12,6 +12,7 @@ from api.token import Token
 
 class LoginView(APIView):
     authentification = False
+    implemented_methods = ('POST',)
 
     def post(self, request, *args, **kwargs):
         """
