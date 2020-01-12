@@ -234,7 +234,7 @@ class MultipleObjectsAPIView(APIView):
     def patch(self, request, *args, **kwargs):
         return NotAllowed()
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, return_, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
             return APIResponse(204, f"A content is required to create {self.verbose_name_plural}")
         data = request.body.decode('utf-8')
