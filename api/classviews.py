@@ -91,7 +91,7 @@ class APIView(View):
 
             if now - token_time < 3600:
                 kwargs['limit'] = int(request.GET.get("limit", 100))
-                kwargs['return_'] = int(request.GET.get("return", False))
+                kwargs['return_'] = bool(request.GET.get("return", False))
                 return super(APIView, self).dispatch(request, *args, **kwargs)
             else:
                 return TokenExpired()
@@ -194,7 +194,7 @@ class SingleObjectAPIView(APIView):
         else:
             return APIResponse(409, f"{self.verbose_name} already exist", object_.json(request) and return_)
 
-    def put(self, request, *args, **kwargs):
+    def put(self, request, return_, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
             return APIResponse(204, f"A content is required to emplace {self.verbose_name}")
         data = request.body.decode('utf-8')
@@ -212,7 +212,7 @@ class SingleObjectAPIView(APIView):
             object_.save()
             return APIResponse(200, f"{self.verbose_name} created successfully", object_.json(request) and return_)
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request, return_, *args, **kwargs):
         try:
             object_ = self.model.objects.get(id=kwargs['id'])
             object_.delete()
