@@ -25,7 +25,8 @@ class LoginView(APIView):
                 'token': str(Token({
                                 'time': int(time.time()),
                                 'uid': user.id
-                            }))
+                            })),
+                'user': user.json(request)
             })
         else:
             return APIResponse(401, "Wrong user credentials")
