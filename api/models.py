@@ -88,7 +88,7 @@ class User(AbstractUser, JsonizableMixin):
     email = models.EmailField('email address', unique=True)
     phone = models.CharField(max_length=20, unique=True)
     username = models.CharField(max_length=20, blank=True)
-    friends = models.ManyToManyField("self", blank=True, related_name="users")
+    friends = models.ManyToManyField("self", blank=True, through="Friendship", through_fields=('user1', 'user2'), related_name="users")
     payment_methods = models.ManyToManyField("PaymentMethod", blank=True, related_name="users")
 
     USERNAME_FIELD = 'email'
@@ -97,6 +97,16 @@ class User(AbstractUser, JsonizableMixin):
     json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups']
 
     objects = UserManager()
+
+
+class Friendship(models.Model, JsonizableMixin):
+    user1 = models.ForeignKey("User", on_delete=models.CASCADE)
+    user2 = models.ForeignKey("User", on_delete=models.CASCADE)
+
+    json_fields = ['user1', 'user2']
+
+    class Meta:
+        unique_together = ('user1', 'user2')
 
 
 class PaymentMethod(models.Model):
@@ -117,6 +127,9 @@ class GroupMembership(models.Model, JsonizableMixin):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
 
     json_fields = ['group', 'user']
+
+    class Meta:
+        unique_together = ('group', 'user')
 
 
 class Group(models.Model, JsonizableMixin):

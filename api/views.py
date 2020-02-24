@@ -42,6 +42,10 @@ class GroupMembershipView(SingleObjectAPIView):
     model = GroupMembership
 
 
+class FriendshipView(SingleObjectAPIView):
+    model = Friendship
+
+
 class GroupView(SingleObjectAPIView):
     model = Group
 
