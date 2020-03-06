@@ -5,6 +5,7 @@ class CORSResponse(JsonResponse):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self['Access-Control-Allow-Origin'] = '*'
+        self['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
 
 
 class APIResponse(CORSResponse):
