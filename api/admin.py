@@ -9,7 +9,7 @@ import django.contrib.postgres.fields as postgres
 from prettyjson import PrettyJSONWidget
 
 from split.admin import split
-from api.models import User, Group, PaymentMethod, Log, GroupMembership
+from api.models import User, Group, PaymentMethod, Log, GroupMembership, Friendship
 
 # Register your models here.
 
@@ -20,6 +20,15 @@ class GroupMembershipInline(admin.TabularInline):
     model = GroupMembership
     extra = 1
 
+
+class FriendshipInline(admin.TabularInline):
+    """
+    """
+
+    model = Friendship
+    extra = 1
+    fk_name = "user1"
+
 @admin.register(User, site=split)
 class UserAdmin(DjangoUserAdmin):
     """
@@ -28,7 +37,7 @@ class UserAdmin(DjangoUserAdmin):
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'friends', 'payment_methods')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'payment_methods')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
@@ -43,7 +52,7 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
-    inlines = (GroupMembershipInline,)
+    inlines = (GroupMembershipInline, FriendshipInline)
 
 
 @admin.register(PaymentMethod, site=split)
