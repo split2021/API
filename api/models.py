@@ -88,7 +88,7 @@ class User(AbstractUser, JsonizableMixin):
     email = models.EmailField('email address', unique=True)
     phone = models.CharField(max_length=20, unique=True)
     username = models.CharField(max_length=20, blank=True)
-    friends = models.ManyToManyField("self", blank=True, through="Friendship", through_fields=('user1', 'user2'), related_name="users")
+    friends = models.ManyToManyField("self", blank=True, through="Friendship", through_fields=('user1', 'user2'), related_name="users", symmetrical=False) # To moddify https://www.caktusgroup.com/blog/2009/08/14/creating-recursive-symmetrical-many-to-many-relationships-in-django/
     payment_methods = models.ManyToManyField("PaymentMethod", blank=True, related_name="users")
 
     USERNAME_FIELD = 'email'
@@ -100,8 +100,8 @@ class User(AbstractUser, JsonizableMixin):
 
 
 class Friendship(models.Model, JsonizableMixin):
-    user1 = models.ForeignKey("User", on_delete=models.CASCADE)
-    user2 = models.ForeignKey("User", on_delete=models.CASCADE)
+    user1 = models.ForeignKey("User", on_delete=models.CASCADE, related_name="user1")
+    user2 = models.ForeignKey("User", on_delete=models.CASCADE, related_name="user2")
 
     json_fields = ['user1', 'user2']
 

@@ -4,7 +4,7 @@ import time
 import json
 
 from api.classviews import SingleObjectAPIView, MultipleObjectsAPIView, APIView
-from api.models import User, Group, GroupMembership
+from api.models import User, Group, GroupMembership, Friendship
 from api.responses import APIResponse, ExceptionCaught
 from api.token import Token
 
