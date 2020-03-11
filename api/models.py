@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db.models.query import QuerySet
 from django.contrib.auth.hashers import make_password
 from django.db import models
 from django.contrib.postgres import fields as postgres
@@ -78,11 +79,6 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
-    def update(self, *args, **kwargs):
-        if 'password' in kwargs:
-            kwargs['password'] = make_password(kwargs['password'])
-        return super().update(*args, **kwargs)
-
     create = create_user
 
 class User(AbstractUser, JsonizableMixin):
@@ -102,6 +98,12 @@ class User(AbstractUser, JsonizableMixin):
     json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups']
 
     objects = UserManager()
+
+    class QuerySet(QuerySet):
+        def update(self, *args, **kwargs):
+            if 'password' in kwargs:
+                kwargs['password'] = make_password(kwargs['password'])
+            return super().update(*args, **kwargs)
 
 
 class Friendship(models.Model, JsonizableMixin):
