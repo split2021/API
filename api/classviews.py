@@ -179,7 +179,7 @@ class SingleObjectAPIView(APIView):
         json_data = json.loads(data)
         object_ = self.model.objects.filter(id=kwargs['id'])
         if object_.count():
-            object_.update(**json_data)
+            object_.update(**json_data) # Need to enrypt new password before modification
             return APIResponse(200, f"{self.verbose_name} updated successfully", object_.first().json(request) and return_)
         else:
             return APIResponse(404, f"{self.verbose_name} not found")
