@@ -43,6 +43,7 @@ class LoginView(APIView):
 
 class PaymentView(APIView):
     """
+        Ask Personal account for payment
     """
 
     authentification = False
@@ -85,6 +86,7 @@ class PaymentView(APIView):
 
 class PaymentExecute(APIView):
     """
+        Execute redirected payment
     """
 
     authentification = False
@@ -104,6 +106,8 @@ class PaymentExecute(APIView):
 
 class PayoutView(APIView):
     """
+        Send money from Business to Business or Personal account
+        Business -> Business / Personnal
     """
 
     authentification = False
@@ -137,6 +141,12 @@ class PayoutView(APIView):
             return APIResponse(200, f"payout {payout.batch_header.payout_batch_id} created successfully")
         else:
             return APIResponse(500, payout.error)
+
+
+class NotificationView(APIView):
+    """
+        Return the notification associated with the group if existing
+    """
 
 class UserView(SingleObjectAPIView):
     model = User
