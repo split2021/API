@@ -2,6 +2,8 @@ from django.contrib.auth import authenticate
 
 import time
 import json
+import random
+import string
 
 import paypalrestsdk
 
@@ -76,7 +78,7 @@ class PaymentView(APIView):
             }]
         })
         if not payment.create():
-            return APIResponse(200, "Failed to create payment")
+            return APIResponse(500, "Failed to create payment")
 
         return APIResponse(200, "Sucessfully created payment", {'links': list((link.method, link.href) for link in payment.links)})
 
@@ -97,7 +99,44 @@ class PaymentExecute(APIView):
         if payment.execute({'payer_id': request.GET.get("PayerID")}):
             return APIResponse(200, "Sucessfully executed payment")
         else:
-            return APIResponse(200, "Failed to execute payment")
+            return APIResponse(500, "Failed to execute payment")
+
+
+class PayoutView(APIView):
+    """
+    """
+
+    authentification = False
+    implemented_methods = ('GET',)
+
+    def post(self, request, *args, **kwargs):
+        """
+        """
+
+        data = request.body.decode('utf-8')
+        json_data = json.loads(data)
+
+        payout = paypalrestsdk.Payout({
+            "sender_batch_header": {
+                "sender_batch_id": ''.join(random.choice(string.ascii_uppercase) for i in range(12)),
+                "email_subject": "You have a payment"
+            },
+            "items": [{
+                "recipient_type": "EMAIL",
+                "amount": {
+                    "value": json_data["amount"],
+                    "currency": "EUR"
+                },
+                "receiver": json_data["receiver"],
+                "note": "Take my test money",
+                "sender_item_id": "item_0"
+            }]
+        })
+
+        if payout.create(sync_mode=False):
+            return APIResponse(200, f"payout {payout.batch_header.payout_batch_id} created successfully")
+        else:
+            return APIResponse(500, payout.error)
 
 class UserView(SingleObjectAPIView):
     model = User
