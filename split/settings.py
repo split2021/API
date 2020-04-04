@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import paypalrestsdk
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -221,3 +222,11 @@ JET_THEMES = [
         'title': 'Light Gray'
     }
 ]
+
+
+## PayPal
+paypalrestsdk.configure({
+    'mode': "sandbox",
+    'client_id': "ATa_26DBlcPtxaYCchJf4IeRU2OnzJD8eSoV2ZyKkUHgHZ5f5UH0SO4vwTtH7ESaK61F8KwHGCh_misI",
+    'client_secret': "ED-j2wGi56NAFH5BqUy4eHnCZmE9sRr4USIXwsc7FrvLr1ClpIb26qryDUN4yLTdeCDBTshCUssabgP2"
+})
