@@ -67,7 +67,7 @@ class PaymentView(APIView):
                         "name": "item",
                         "sku": "item",
                         "price": "5.00",
-                        "currency": "USD",
+                        "currency": "EUR",
                         "quantity": 1
                     }
                 ]},
