@@ -82,6 +82,7 @@ class APIView(View):
             user = get_user_model().objects.get(id=json_payload['uid'])
             # Must add a condition to let a user update its own information
 
+            # if user.id == request.path_info.split('/')[-1].split('?')[0] or
             if not user.has_perm(f'api.{self.match_table[request.method]}_{self.verbose_name}'):
                 return NotAllowed()
 
