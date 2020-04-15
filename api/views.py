@@ -53,6 +53,9 @@ class PaymentView(APIView):
         """
         """
 
+        data = request.body.decode('utf-8')
+        json_data = json.loads(data)
+
         payment = paypalrestsdk.Payment({
             "intent": "sale",
             "payer": {
@@ -66,13 +69,13 @@ class PaymentView(APIView):
                     "items": [{
                         "name": "item",
                         "sku": "item",
-                        "price": "5.00",
+                        "price": json_data['price'],
                         "currency": "EUR",
                         "quantity": 1
                     }
                 ]},
                 "amount": {
-                    "total": "5.00",
+                    "total": json_data['price'],
                     "currency": "EUR"
                 },
                 "description": "Test payment from Split API"
