@@ -79,6 +79,11 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
+    #def update(self, *args, **kwargs):
+    #    if 'password' in kwargs:
+    #        kwargs['password'] = make_password(kwargs['password'])
+    #    return super().update(*args, **kwargs)
+
     create = create_user
 
 class User(AbstractUser, JsonizableMixin):
