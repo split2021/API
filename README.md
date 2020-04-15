@@ -1,5 +1,9 @@
 # API
 
+## Tests
+
+![Docker Image CI](https://github.com/split2021/API/workflows/Docker%20Image%20CI/badge.svg?branch=master)
+
 ## Documentation
 
 The API endpoints documentation can be found [here](https://documenter.getpostman.com/view/6975668/S1EUtFTJ?version=latest)
