@@ -16,6 +16,8 @@ from api.token import Token
 
 class LoginView(APIView):
     """
+     Receive email and password and try to authenticate the user then
+     If successful, send back user information
     """
 
     authentification = False
@@ -43,7 +45,7 @@ class LoginView(APIView):
 
 class PaymentView(APIView):
     """
-        Ask Personal account for payment
+     Ask Personal account for payment
     """
 
     authentification = False
@@ -89,7 +91,7 @@ class PaymentView(APIView):
 
 class PaymentExecute(APIView):
     """
-        Execute redirected payment
+     Execute redirected payment
     """
 
     authentification = False
@@ -109,8 +111,8 @@ class PaymentExecute(APIView):
 
 class PayoutView(APIView):
     """
-        Send money from Business to Business or Personal account
-        Business -> Business / Personnal
+     Send money from Business to Business or Personal account
+     Business -> Business / Personnal
     """
 
     authentification = False
@@ -148,7 +150,7 @@ class PayoutView(APIView):
 
 class NotificationView(APIView):
     """
-        Return the notification associated with the group if existing
+     Return the notification associated with the group if existing
     """
 
 class UserView(SingleObjectAPIView):
