@@ -33,6 +33,8 @@ jobs:
           fetch-depth: 0
       - name: Update API submodule
         run: git submodule foreach git pull origin master
+      - name: Add changes
+        run: git add .
       - name: Commit Split repository updated
         run: git -c user.name='Github Actions' -c user.email='split_2021@labeip.epitech.eu' commit -m "Update API to $GITHUB_SHA commit"
       - name: Push Split repository updated
