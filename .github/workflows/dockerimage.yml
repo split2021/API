@@ -20,6 +20,7 @@ jobs:
       run: docker-compose run api python manage.py test
       
   update:
+    runs-on: ubuntu-latest
     needs: [build]
     
     steps:
