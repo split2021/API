@@ -18,7 +18,8 @@ class UserTestCase(TestCase):
 
         self.emptyRequest = HttpRequest()
         self.emptyRequest.META['CONTENT_LENGTH'] = 0
-        self.emptyRequest.META['SERVER_NAME'] = "Default server name"
+        self.emptyRequest.META['SERVER_NAME'] = "127.0.0.1"
+        self.emptyRequest.META['SERVER_PORT'] = 8080
         self.emptyRequest._body = b""
 
         User.objects.create_user(email="test@email.fr",
@@ -55,7 +56,8 @@ class UserTestCase(TestCase):
     def test_patch_existing_user_with_content(self):
         user = User.objects.get(email="test@email.fr")
 
-        request = HttpRequest()
+        import copy
+        request = copy.deepcopy(self.emptyRequest)
         request._body = json.dumps({
             'email': "testpatch@email.fr",
             'phone': "+33 2 15 35 95 75",
@@ -87,7 +89,8 @@ class UserTestCase(TestCase):
         self.assertEqual(content_json['reason'], "A content is required to update user")
 
     def test_patch_existing_user_with_content(self):
-        request = HttpRequest()
+        import copy
+        request = copy.deepcopy(self.emptyRequest)
         request._body = json.dumps({
             'email': "testpatch@email.fr",
             'phone': "+33 2 15 35 95 75",
@@ -104,7 +107,8 @@ class UserTestCase(TestCase):
 
 
     def test_post_user_with_content(self):
-        request = HttpRequest()
+        import copy
+        request = copy.deepcopy(self.emptyRequest)
         request._body = json.dumps({
             'email': "test2@email.fr",
             'password': "test2password",
@@ -131,7 +135,8 @@ class UserTestCase(TestCase):
     def test_put_existing_user_with_content(self):
         user = User.objects.get(email="test@email.fr")
 
-        request = HttpRequest()
+        import copy
+        request = copy.deepcopy(self.emptyRequest)
         request._body = json.dumps({
             'email': "testput@email.fr",
             'phone': "+33 3 15 35 95 75",
@@ -154,7 +159,8 @@ class UserTestCase(TestCase):
         self.assertEqual(user.username,  "putusername")
 
     def test_put_nonexisting_user_with_content(self):
-        request = HttpRequest()
+        import copy
+        request = copy.deepcopy(self.emptyRequest)
         request._body = json.dumps({
             'email': "testput@email.fr",
             'phone': "+33 3 15 35 95 75",
@@ -216,6 +222,8 @@ class UsersTestCase(TestCase):
 
         self.emptyRequest = HttpRequest()
         self.emptyRequest.META['CONTENT_LENGTH'] = 0
+        self.emptyRequest.META['SERVER_NAME'] = "127.0.0.1"
+        self.emptyRequest.META['SERVER_PORT'] = 8080
         self.emptyRequest._body = b""
 
         User.objects.create_user(email="test@email.fr",
@@ -243,7 +251,8 @@ class UsersTestCase(TestCase):
         self.assertEqual(content_json['reason'], "Verb not allowed")
 
     def test_post_users_with_content(self):
-        request = HttpRequest()
+        import copy
+        request = copy.deepcopy(self.emptyRequest)
         request._body = json.dumps({
             'email': "test2@email.fr",
             'password': "test2password",
@@ -257,7 +266,7 @@ class UsersTestCase(TestCase):
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 201)
-        self.assertEqual(content_json['reason'], "user created successfully")
+        self.assertEqual(content_json['reason'], "users created successfully")
 
     def test_post_users_without_content(self):
         response = self.usersView.post(request=self.emptyRequest)

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 
 import json
+from json.decoder import JSONDecodeError
 import base64
 import time
 import hmac
@@ -82,8 +83,7 @@ class APIView(View):
             user = get_user_model().objects.get(id=json_payload['uid'])
             # Must add a condition to let a user update its own information
 
-            # if user.id == request.path_info.split('/')[-1].split('?')[0] or
-            if not user.has_perm(f'api.{self.match_table[request.method]}_{self.verbose_name}'):
+            if not user.id == request.path_info.split('/')[-1].split('?')[0] or not user.has_perm(f'api.{self.match_table[request.method]}_{self.verbose_name}'):
                 return NotAllowed()
 
             if not 'time' in json_payload:
@@ -176,10 +176,11 @@ class SingleObjectAPIView(APIView):
             return APIResponse(404, f"{self.verbose_name} not found")
 
     def patch(self, request, return_=False, *args, **kwargs):
-        if request.META['CONTENT_LENGTH'] == "0":
+        try:
+            data = request.body.decode('utf-8')
+            json_data = json.loads(data)
+        except JSONDecodeError:
             return APIResponse(204, f"A content is required to update {self.verbose_name}")
-        data = request.body.decode('utf-8')
-        json_data = json.loads(data)
         object_ = self.model.objects.filter(id=kwargs['id'])
         if object_.count():
             object_.update(**json_data) # Need to enrypt new password before modification
@@ -188,10 +189,11 @@ class SingleObjectAPIView(APIView):
             return APIResponse(404, f"{self.verbose_name} not found")
 
     def post(self, request, return_=False, *args, **kwargs):
-        if request.META['CONTENT_LENGTH'] == "0":
+        try:
+            data = request.body.decode('utf-8')
+            json_data = json.loads(data)
+        except JSONDecodeError:
             return APIResponse(204, f"A content is required to create {self.verbose_name}")
-        data = request.body.decode('utf-8')
-        json_data = json.loads(data)
         object_, created = self.model.objects.get_or_create(**json_data)
         if created:
             return APIResponse(201, f"{self.verbose_name} created successfully", object_.json(request) and return_)
@@ -199,11 +201,12 @@ class SingleObjectAPIView(APIView):
             return APIResponse(409, f"{self.verbose_name} already exist", object_.json(request) and return_)
 
     def put(self, request, return_=False, *args, **kwargs):
-        if request.META['CONTENT_LENGTH'] == "0":
-            return APIResponse(204, f"A content is required to emplace {self.verbose_name}")
-        data = request.body.decode('utf-8')
         try:
+            data = request.body.decode('utf-8')
             json_data = json.loads(data)
+        except JSONDecodeError:
+            return APIResponse(204, f"A content is required to emplace {self.verbose_name}")
+        try:
             json_data.pop('id', None)
             object_ = self.model.objects.get(id=kwargs['id'])
             for key, value in json_data.items():
@@ -220,6 +223,7 @@ class SingleObjectAPIView(APIView):
         try:
             object_ = self.model.objects.get(id=kwargs['id'])
             object_.delete()
+            object_.id = kwargs['id']
             return APIResponse(200, f"{self.verbose_name} deleted successfully", object_.json(request) and return_)
         except ObjectDoesNotExist:
             return APIResponse(404, f"{self.verbose_name} not found")
@@ -239,10 +243,11 @@ class MultipleObjectsAPIView(APIView):
         return NotAllowed()
 
     def post(self, request, return_=False, *args, **kwargs):
-        if request.META['CONTENT_LENGTH'] == "0":
-            return APIResponse(204, f"A content is required to create {self.verbose_name_plural}")
-        data = request.body.decode('utf-8')
-        json_data = json.loads(data)
+        try:
+            data = request.body.decode('utf-8')
+            json_data = json.loads(data)
+        except JSONDecodeError:
+            return APIResponse(204, f"A content is required to create {self.verbose_name}")
         object_ = self.model.objects.create(**json_data)
         return APIResponse(201, f"{self.verbose_name_plural} created successfully", object_.json(request) and return_)
 
