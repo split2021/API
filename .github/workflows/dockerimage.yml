@@ -28,6 +28,7 @@ jobs:
         name: Checkout Split repository
         with:
           repository: split2021/Split
+          ref: pre-prod
       - name: Update API submodule
         run: git submodule foreach git pull origin master
       - name: Commit Split repository updated
