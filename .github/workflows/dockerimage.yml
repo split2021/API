@@ -32,11 +32,14 @@ jobs:
           submodules: true
           fetch-depth: 0
           token: ${{ secrets.SPLIT_BOT_TOKEN }}
+      - name: Create merging branch
+        run: git checkout -b "merge_${{ github.sha }}"
       - name: Update API submodule
         run: git submodule foreach git pull origin master
       - name: Add changes
         run: git add .
-      - name: Commit Split repository updated
-        run: git -c user.name='Github Actions' -c user.email='split_2021@labeip.epitech.eu' commit -m "Update API to $GITHUB_SHA commit"
-      - name: Push Split repository updated
-        run: git push
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v2
+        with:
+          token: ${{ secrets.SPLIT_BOT_TOKEN }}
+          title: "Update API to commit ${{ github.sha }}"
