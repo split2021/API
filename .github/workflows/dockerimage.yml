@@ -31,6 +31,7 @@ jobs:
           ref: pre-prod
           submodules: true
           fetch-depth: 0
+          token: ${{ secrets.SPLIT_BOT_TOKEN }}
       - name: Update API submodule
         run: git submodule foreach git pull origin master
       - name: Add changes
