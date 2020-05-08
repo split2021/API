@@ -30,6 +30,7 @@ jobs:
           repository: split2021/Split
           ref: pre-prod
           submodules: true
+          fetch-depth: 0
       - name: Update API submodule
         run: git submodule foreach git pull origin master
       - name: Commit Split repository updated
