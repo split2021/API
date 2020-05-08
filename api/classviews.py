@@ -92,8 +92,10 @@ class APIView(View):
             now = time.time()
 
             if now - token_time < 3600:
-                kwargs['limit'] = int(request.GET.get("limit", 100))
-                kwargs['return_'] = bool(request.GET.get("return", False))
+                if "limit" in request.GET:
+                    kwargs['limit'] = int(request.GET.get("limit"))
+                if "return" in request.GET:
+                    kwargs['return_'] = bool(request.GET.get("return"))
                 return super(APIView, self).dispatch(request, *args, **kwargs)
             else:
                 return TokenExpired()
@@ -173,7 +175,7 @@ class SingleObjectAPIView(APIView):
         except ObjectDoesNotExist:
             return APIResponse(404, f"{self.verbose_name} not found")
 
-    def patch(self, request, return_, *args, **kwargs):
+    def patch(self, request, return_=False, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
             return APIResponse(204, f"A content is required to update {self.verbose_name}")
         data = request.body.decode('utf-8')
@@ -185,7 +187,7 @@ class SingleObjectAPIView(APIView):
         else:
             return APIResponse(404, f"{self.verbose_name} not found")
 
-    def post(self, request, return_, *args, **kwargs):
+    def post(self, request, return_=False, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
             return APIResponse(204, f"A content is required to create {self.verbose_name}")
         data = request.body.decode('utf-8')
@@ -196,7 +198,7 @@ class SingleObjectAPIView(APIView):
         else:
             return APIResponse(409, f"{self.verbose_name} already exist", object_.json(request) and return_)
 
-    def put(self, request, return_, *args, **kwargs):
+    def put(self, request, return_=False, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
             return APIResponse(204, f"A content is required to emplace {self.verbose_name}")
         data = request.body.decode('utf-8')
@@ -214,7 +216,7 @@ class SingleObjectAPIView(APIView):
             object_.save()
             return APIResponse(200, f"{self.verbose_name} created successfully", object_.json(request) and return_)
 
-    def delete(self, request, return_, *args, **kwargs):
+    def delete(self, request, return_=True, *args, **kwargs):
         try:
             object_ = self.model.objects.get(id=kwargs['id'])
             object_.delete()
@@ -229,14 +231,14 @@ class MultipleObjectsAPIView(APIView):
     """
     implemented_methods = ('get', 'post')
 
-    def get(self, request, limit, *args, **kwargs):
+    def get(self, request, limit=100, *args, **kwargs):
         objects = self.model.objects.all()[:limit]
         return APIResponse(200, f"{self.verbose_name_plural} retrieved successfully", [object_.json(request) for object_ in objects])
 
     def patch(self, request, *args, **kwargs):
         return NotAllowed()
 
-    def post(self, request, return_, *args, **kwargs):
+    def post(self, request, return_=False, *args, **kwargs):
         if request.META['CONTENT_LENGTH'] == "0":
             return APIResponse(204, f"A content is required to create {self.verbose_name_plural}")
         data = request.body.decode('utf-8')
