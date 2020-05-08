@@ -44,6 +44,6 @@ jobs:
         shell: bash
         run: |
           curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
-          bin/hub pull-request -m "Update API to commit ${{ github.sha }}"
+          bin/hub pull-request -m "Update API to commit ${{ github.sha }}" --message "Pull request automatically created by Github action after all tests for the API repository (https://github.com/split2021/API) passed successfully. It should only update the api submodule to the commit ${{ github.sha }}"
         env:
           GITHUB_TOKEN: ${{ secrets.SPLIT_BOT_TOKEN }}
