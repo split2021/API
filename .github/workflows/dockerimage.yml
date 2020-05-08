@@ -29,8 +29,7 @@ jobs:
         with:
           repository: split2021/Split
       - name: Update API submodule
-        working-directory: api
-        run: git pull origin master
+        run: cd api && git pull origin master
       - name: Commit Split repository updated
         run: git -c user.name='Github Actions' -c user.email='split_2021@labeip.epitech.eu' commit -m "Update API to $GITHUB_SHA commit"
       - name: Push Split repository updated
