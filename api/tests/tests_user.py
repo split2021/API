@@ -18,6 +18,7 @@ class UserTestCase(TestCase):
 
         self.emptyRequest = HttpRequest()
         self.emptyRequest.META['CONTENT_LENGTH'] = 0
+        self.emptyRequest.META['SERVER_NAME'] = "Default server name"
         self.emptyRequest._body = b""
 
         User.objects.create_user(email="test@email.fr",
