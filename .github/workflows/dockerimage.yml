@@ -39,7 +39,7 @@ jobs:
       - name: Add changes
         run: git add .
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v2
+        uses: peter-evans/create-pull-request@v2.7.1
         with:
           token: ${{ secrets.SPLIT_BOT_TOKEN }}
           title: "Update API to commit ${{ github.sha }}"
