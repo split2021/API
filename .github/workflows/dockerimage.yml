@@ -32,6 +32,6 @@ jobs:
         working-directory: api
         run: git pull origin master
       - name: Commit Split repository updated
-        run: git commit -m "Update API to $GITHUB_SHA commit"
+        run: git -c user.name='Github Actions' -c user.email='split_2021@labeip.epitech.eu' commit -m "Update API to $GITHUB_SHA commit"
       - name: Push Split repository updated
         run: git push
