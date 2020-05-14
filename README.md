@@ -2,7 +2,7 @@
 
 ## Tests
 
-![Docker Image CI](https://github.com/split2021/API/workflows/Docker%20Image%20CI/badge.svg?branch=master)
+![Docker Image CI](https://github.com/split2021/API/workflows/Docker%20Image%20CI/badge.svg?branch=release)
 
 ## Documentation
 
