@@ -8,6 +8,10 @@
 
 The API endpoints documentation can be found [here](https://documenter.getpostman.com/view/6975668/S1EUtFTJ?version=latest)
 
+HTTP Status Codes matches [these ones](https://www.restapitutorial.com/httpstatuscodes.html)
+
+We are using the [Payal-Python-SDK V1](https://github.com/paypal/PayPal-Python-SDK/tree/0d704e7d3bb0c9c77db1edc34801709e43440710)
+
 ## Startup
 
 *The docker-compose.yml file provided is only working for a*
