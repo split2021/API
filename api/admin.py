@@ -9,7 +9,7 @@ import django.contrib.postgres.fields as postgres
 from prettyjson import PrettyJSONWidget
 
 from split.admin import split
-from api.models import User, Group, PaymentMethod, Log, GroupMembership, Friendship
+from api.models import User, Group, PaymentMethod, Log, GroupMembership, Friendship, Payment
 
 # Register your models here.
 
@@ -117,3 +117,9 @@ class LogAdmin(admin.ModelAdmin):
     formfield_overrides = {
         postgres.JSONField: {'widget': PrettyJSONWidget(attrs={'initial': 'parsed'}) }
     }
+
+
+@admin.register(Payment, site=split)
+class PaymentAdmin(admin.ModelAdmin):
+    """
+    """
