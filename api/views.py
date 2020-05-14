@@ -172,10 +172,11 @@ class PayoutView(APIView):
             return APIResponse(500, payout.error)
 
 
-class NotificationView(APIView):
+class RefundView(APIView):
     """
-     Return the notification associated with the group if existing
+     Use to ask a refund for all the users associated with one Payment
     """
+
 
 class UserView(SingleObjectAPIView):
     model = User
