@@ -9,7 +9,6 @@ on:
 jobs:
 
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -47,3 +46,17 @@ jobs:
           bin/hub pull-request -m "Update API to commit ${{ github.sha }}" --message "Pull request automatically created by Github action after all tests for the API repository (https://github.com/split2021/API) passed successfully. It should only update the api submodule to the commit ${{ github.sha }}"
         env:
           GITHUB_TOKEN: ${{ secrets.SPLIT_BOT_TOKEN }}
+
+      - name: Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.${{ github.run_number }}
+          release_name:
+          body: |
+            List of changes:
+            -
+            -
+          draft: false
+          prerelease: false
