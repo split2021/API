@@ -194,3 +194,19 @@ class Log(models.Model):
     post = postgres.JSONField()
 
     objects = LogManager()
+
+
+class Payment(models.Model, JsonizableMixin):
+    """
+    """
+
+    payments = postgres.JSONField(default={}, blank=True)
+    group = models.ForeignKey("Group", on_delete=models.SET_NULL, null=True)
+
+    json_fields = ['payments', 'group']
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        pass
