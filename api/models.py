@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.postgres import fields as postgres
 
 import json
+from enum import IntEnum
 
 # Create your models here.
 
@@ -200,10 +201,49 @@ class Payment(models.Model, JsonizableMixin):
     """
     """
 
+    OUR_FEE = 1.03
+    OUR_FEE_INVERSED = 1/OUR_FEE
+    PAYMENT_FEE = 1.029
+    PAYMENT_INVERSED_FEE = 1/PAYMENT_FEE
+
+    EURO = "EUR"
+    USD = "USD"
+
+    CURRENCIES = [
+        (EURO, "Euro"),
+        (USD, "USD"),
+    ]
+
     payments = postgres.JSONField(default={}, blank=True)
     group = models.ForeignKey("Group", on_delete=models.SET_NULL, null=True)
+    total = models.FloatField()
+    currency = models.CharField(max_length=4, choices=CURRENCIES, default=EURO)
+    target = models.EmailField()
 
-    json_fields = ['payments', 'group']
+    json_fields = ['payments', 'group', 'total', 'currency']
+
+    class STATUS(IntEnum):
+        """
+        """
+
+        COMPLETED = 0
+        FAILED = 1
+        PROCESSING = 2
+
+    def is_complete(self):
+        for id, status in self.payments.items():
+            if status != self.STATUS.COMPLETED:
+                return False
+        return True
+
+    def is_failed(self):
+        for id, status in self.payments.items():
+            if status == self.STATUS.FAILED:
+                return True
+        return False
+
+    def calculate_payout_price(self):
+        return round(self.OUR_FEE_INVERSED * self.total, 2)
 
     def __str__(self):
         return str(self.id)

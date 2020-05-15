@@ -64,14 +64,20 @@ class PaymentView(APIView):
         if group_id is None or Group.objects.filter(id=group_id).count() == 0:
             return APIResponse(400, f"A payment cannot be created without a group")
 
+        total = round(json_data['total'], 2)
         users_mail = json_data['users']
         if not users_mail:
             return APIResponse(400, f"A payment cannot be created without at least one user")
         if User.objects.filter(email__in=users_mail).count() != len(users_mail):
             return APIResponse(400, f"At least one user does not exist")
 
+        user_sum = round(sum(users_mail.values()), 2)
+        if user_sum != total:
+            return APIResponse(400, f"Total ({total}) does not match users sum ({user_sum})")
+        target = json_data['target']
+
         payments_links = {}
-        db_payment = Payment.objects.create(group_id=group_id, payments={}) # TODO: Create Django Issue because payments should be {} by default (according to models) but keeps its old value (concatenation)
+        db_payment = Payment.objects.create(group_id=group_id, payments={}, currency=currency, total=total, target=target) # TODO: Create Django Issue because payments should be {} by default (according to models) but keeps its old value (concatenation)
         for mail, price in users_mail.items():
             payment = paypalrestsdk.Payment({
                 "intent": "sale",
@@ -99,9 +105,9 @@ class PaymentView(APIView):
                 }]
             })
             if not payment.create():
-                return APIResponse(500, f"Failed to create payment for user {user}")
+                return APIResponse(500, f"Failed to create payment for user {mail}")
             payments_links[mail] = list((link.method, link.href, price) for link in payment.links)
-            db_payment.payments[payment.id] = False
+            db_payment.payments[payment.id] = Payment.STATUS.PROCESSING
 
         db_payment.save()
         return APIResponse(200, "Sucessfully created payments", payments_links)
@@ -121,16 +127,57 @@ class PaymentExecute(APIView):
 
         payment_id = request.GET.get("paymentId")
         payment = paypalrestsdk.Payment.find(payment_id)
-        db_payment =  Payment.objects.get(payments__contains=[payment_id])
-        db_payment.payments[payment_id] = True
+        db_payment =  Payment.objects.get(payments__contains={payment_id: Payment.STATUS.PROCESSING})
+        db_payment.payments[payment_id] = Payment.STATUS.COMPLETED
         db_payment.save()
 
-#        if payment successful do smth:
-
         if payment.execute({'payer_id': request.GET.get("PayerID")}):
-            return APIResponse(200, "Sucessfully executed payment")
+            if db_payment.is_complete():
+                payout = paypalrestsdk.Payout({
+                    "sender_batch_header": {
+                        "sender_batch_id": ''.join(random.choice(string.ascii_uppercase) for i in range(12)),
+                        "email_subject": "You have a payment"
+                    },
+                    "items": [{
+                        "recipient_type": "EMAIL",
+                        "amount": {
+                            "value": db_payment.calculate_payout_price(),
+                            "currency": db_payment.currency
+                        },
+                        "receiver": db_payment.target,
+                        "note": "Take my test money",
+                        "sender_item_id": "item_0"
+                    }]
+                })
+                if payout.create(sync_mode=False):
+                    return APIResponse(200, "Sucessfully completed payment")
+                else:
+                    return APIResponse(500, payout.error)
+            else:
+                return APIResponse(200, "Successfully executed payment")
         else:
             return APIResponse(500, "Failed to execute payment")
+
+
+class PaymentCanceled(APIView):
+    """
+    """
+
+    authentification = False
+    implemented_methods = ('GET',)
+
+    def get(self, request, *args, **kwargs):
+        """
+        """
+
+        payment_id = request.GET.get("paymentId")
+        payment = paypalrestsdk.Payment.find(payment_id)
+        db_payment =  Payment.objects.get(payments__contains=[payment_id])
+        if db_payment.payments[payment_id] == Payment.STATUS.COMPLETED:
+            return APIResponse(403, "Your payment is already completed")
+        db_payment.payments[payment_id] = Payment.STATUS.FAILED
+        db_payment.save()
+        return APIResponse(200, "Payment canceled")
 
 
 class PayoutView(APIView):
