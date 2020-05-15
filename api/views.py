@@ -107,7 +107,7 @@ class PaymentView(APIView):
             if not payment.create():
                 return APIResponse(500, f"Failed to create payment for user {mail}")
             payments_links[mail] = list((link.method, link.href, price) for link in payment.links)
-            db_payment.payments[payment.id] = Payment.STATUS.PROCESSING
+            db_payment.payments[payment.id] = {'status': Payment.STATUS.PROCESSING}
 
         db_payment.save()
         return APIResponse(200, "Sucessfully created payments", payments_links)
@@ -127,11 +127,13 @@ class PaymentExecute(APIView):
 
         payment_id = request.GET.get("paymentId")
         payment = paypalrestsdk.Payment.find(payment_id)
-        db_payment =  Payment.objects.get(payments__contains={payment_id: Payment.STATUS.PROCESSING})
-        db_payment.payments[payment_id] = Payment.STATUS.COMPLETED
+        db_payment =  Payment.objects.get(payments__contains={payment_id: {'status': Payment.STATUS.PROCESSING}})
+        db_payment.payments[payment_id]['status'] = Payment.STATUS.COMPLETED
         db_payment.save()
 
         if payment.execute({'payer_id': request.GET.get("PayerID")}):
+            db_payment.payments[payment_id]['sale_id'] = payment.__data__['transactions'][0]['related_resources'][0]['sale']['id']
+            db_payment.save()
             if db_payment.is_complete():
                 payout = paypalrestsdk.Payout({
                     "sender_batch_header": {
@@ -223,6 +225,27 @@ class RefundView(APIView):
     """
      Use to ask a refund for all the users associated with one Payment
     """
+
+    authentification = False
+    implemented_methods = ('GET',)
+
+    def get(self, request, *args, **kwargs):
+        """
+        """
+
+        db_payment = Payment.objects.get(id=kwargs['id'])
+
+        for payment in db_payment.payments.values():
+            sale = paypalrestsdk.Sale.find(payment['sale_id'])
+
+            refund = sale.refund({
+                "amount": {
+                    "total": db_payment.total,
+                    "currency": db_payment.currency
+                }
+            })
+            if refund.success():
+                pass
 
 
 class UserView(SingleObjectAPIView):
