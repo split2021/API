@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
 from django.db.models.query import QuerySet
 from django.contrib.auth.hashers import make_password
 from django.db import models
@@ -21,7 +21,7 @@ class JsonizableMixin(object):
             elif hasattr(field, 'id'):
                 value = {'id': field.id, 'url': field.url(request)}
             elif callable(field):
-                value = field()
+                value = self.field()
             else:
                 value = field
             dump[fieldname] = value
@@ -97,13 +97,28 @@ class User(AbstractUser, JsonizableMixin):
     username = models.CharField(max_length=20, blank=True)
     friends = models.ManyToManyField("self", blank=True, through="Friendship", through_fields=('user1', 'user2'), related_name="users", symmetrical=False) # To moddify https://www.caktusgroup.com/blog/2009/08/14/creating-recursive-symmetrical-many-to-many-relationships-in-django/
     payment_methods = models.ManyToManyField("PaymentMethod", blank=True, related_name="users")
+    score = models.IntegerField(default=0)
+    title = models.CharField(max_length=255)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
 
-    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups']
+    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count']
 
     objects = UserManager()
+
+    def friends_count(self):
+        return self.friends.count()
+
+    def payment_methods_count(self):
+        return self.payment_methods.count()
+
+    @staticmethod
+    def add_default_permissions(sender, **kwargs):
+        print("User post saved")
+        user = kwargs['instance']
+        if kwargs['created']:
+            user.groups.add(Group.objects.get_or_create(name="Client")[0].id)
 
     class QuerySet(QuerySet):
         def update(self, *args, **kwargs):
@@ -135,8 +150,8 @@ class PaymentMethod(models.Model):
         pass
 
 
-class GroupMembership(models.Model, JsonizableMixin):
-    group = models.ForeignKey("Group", on_delete=models.CASCADE)
+class PaymentGroupMembership(models.Model, JsonizableMixin):
+    group = models.ForeignKey("PaymentGroup", on_delete=models.CASCADE)
     user = models.ForeignKey("User", on_delete=models.CASCADE)
 
     json_fields = ['group', 'user']
@@ -145,13 +160,13 @@ class GroupMembership(models.Model, JsonizableMixin):
         unique_together = ('group', 'user')
 
 
-class Group(models.Model, JsonizableMixin):
+class PaymentGroup(models.Model, JsonizableMixin):
     """
     Store a list of users than can make payments together
     """
 
     name = models.CharField(max_length=42)
-    users = models.ManyToManyField("User", blank=True, through="GroupMembership", through_fields=('group', 'user'), related_name="payment_groups")
+    users = models.ManyToManyField("User", blank=True, through="PaymentGroupMembership", through_fields=('group', 'user'), related_name="payment_groups")
 
     json_fields = ['name', 'users']
 
@@ -214,8 +229,8 @@ class Payment(models.Model, JsonizableMixin):
         (USD, "USD"),
     ]
 
-    payments = postgres.JSONField(default={}, blank=True)
-    group = models.ForeignKey("Group", on_delete=models.SET_NULL, null=True)
+    payments = postgres.JSONField(default=dict, blank=True)
+    group = models.ForeignKey("PaymentGroup", related_name="payments", on_delete=models.SET_NULL, null=True)
     total = models.FloatField()
     currency = models.CharField(max_length=4, choices=CURRENCIES, default=EURO)
     target = models.EmailField()

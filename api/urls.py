@@ -5,8 +5,8 @@ from api.views import (
                         PaymentView, PaymentExecute, PayoutView, PaymentCanceled,
                         UserView, UsersView,
                         FriendshipView, FriendshipsView,
-                        GroupMembershipView,
-                        GroupView, GroupsView
+                        PaymentGroupMembershipView,
+                        PaymentGroupView, PaymentGroupsView
 )
 
 urlpatterns = [
@@ -19,9 +19,9 @@ urlpatterns = [
 
     path('users/<int:id>', UserView.as_view()),
     path('users/', UsersView.as_view()),
-    path('group_memberships/<int:id>', GroupMembershipView.as_view()),
+    path('PaymentGroup_memberships/<int:id>', PaymentGroupMembershipView.as_view()),
     path('friendships/<int:id>', FriendshipView.as_view()),
     path('friendships/', FriendshipsView.as_view()),
-    path('groups/<int:id>', GroupView.as_view()),
-    path('groups/', GroupsView.as_view()),
+    path('PaymentGroups/<int:id>', PaymentGroupView.as_view()),
+    path('PaymentGroups/', PaymentGroupsView.as_view()),
 ]

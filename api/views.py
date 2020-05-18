@@ -8,7 +8,7 @@ import string
 import paypalrestsdk
 
 from api.classviews import SingleObjectAPIView, MultipleObjectsAPIView, APIView
-from api.models import User, Group, GroupMembership, Friendship, Payment
+from api.models import User, PaymentGroup, PaymentGroupMembership, Friendship, Payment
 from api.responses import APIResponse, ExceptionCaught
 from api.token import Token
 
@@ -61,7 +61,7 @@ class PaymentView(APIView):
         currency = json_data.get('currency') or "EUR"
 
         group_id = json_data.get('group')
-        if group_id is None or Group.objects.filter(id=group_id).count() == 0:
+        if group_id is None or PaymentGroup.objects.filter(id=group_id).count() == 0:
             return APIResponse(400, f"A payment cannot be created without a group")
 
         total = round(json_data['total'], 2)
@@ -77,7 +77,7 @@ class PaymentView(APIView):
         target = json_data['target']
 
         payments_links = {}
-        db_payment = Payment.objects.create(group_id=group_id, payments={}, currency=currency, total=total, target=target) # TODO: Create Django Issue because payments should be {} by default (according to models) but keeps its old value (concatenation)
+        db_payment = Payment.objects.create(group_id=group_id, currency=currency, total=total, target=target) # TODO: Create Django Issue because payments should be {} by default (according to models) but keeps its old value (concatenation)
         for mail, price in users_mail.items():
             payment = paypalrestsdk.Payment({
                 "intent": "sale",
@@ -255,8 +255,8 @@ class UsersView(MultipleObjectsAPIView):
     model = User
 
 
-class GroupMembershipView(SingleObjectAPIView):
-    model = GroupMembership
+class PaymentGroupMembershipView(SingleObjectAPIView):
+    model = PaymentGroupMembership
 
 
 class FriendshipView(SingleObjectAPIView):
@@ -266,8 +266,8 @@ class FriendshipsView(MultipleObjectsAPIView):
     model = Friendship
 
 
-class GroupView(SingleObjectAPIView):
-    model = Group
+class PaymentGroupView(SingleObjectAPIView):
+    model = PaymentGroup
 
-class GroupsView(MultipleObjectsAPIView):
-    model = Group
+class PaymentGroupsView(MultipleObjectsAPIView):
+    model = PaymentGroup
