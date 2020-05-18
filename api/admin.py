@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.urls import path
@@ -9,15 +10,15 @@ import django.contrib.postgres.fields as postgres
 from prettyjson import PrettyJSONWidget
 
 from split.admin import split
-from api.models import User, Group, PaymentMethod, Log, GroupMembership, Friendship, Payment
+from api.models import User, PaymentGroup, PaymentMethod, Log, PaymentGroupMembership, Friendship, Payment
 
 # Register your models here.
 
-class GroupMembershipInline(admin.TabularInline):
+class PaymentGroupMembershipInline(admin.TabularInline):
     """
     """
 
-    model = GroupMembership
+    model = PaymentGroupMembership
     extra = 1
 
 
@@ -52,7 +53,7 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
-    inlines = (GroupMembershipInline, FriendshipInline)
+    inlines = (PaymentGroupMembershipInline, FriendshipInline)
 
 
 @admin.register(PaymentMethod, site=split)
@@ -94,15 +95,15 @@ class IsGroupEmptyListFilter(admin.SimpleListFilter):
         elif self.value() == "False":
             return queryset.all().exclude(users=None)
 
-@admin.register(Group, site=split)
-class GroupAdmin(admin.ModelAdmin):
+@admin.register(PaymentGroup, site=split)
+class PaymentGroupAdmin(admin.ModelAdmin):
     """
     """
     list_display = ('name', 'users_count')
     filter_horizontal = ('users',)
     list_filter = (IsGroupEmptyListFilter,)
     search_fields = ('name',)
-    inlines = (GroupMembershipInline,)
+    inlines = (PaymentGroupMembershipInline,)
 
     def users_count(self, instance):
         return instance.users.count()
@@ -124,3 +125,9 @@ class PaymentAdmin(admin.ModelAdmin):
     """
     """
     list_display = ('group', 'total', 'currency', 'target', 'is_complete', 'is_failed', 'calculate_payout_price')
+
+
+@admin.register(Group, site=split)
+class GroupAdmin(admin.ModelAdmin):
+    """
+    """

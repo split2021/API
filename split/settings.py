@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'prettyjson',
-    'api',
+    'api.apps.ApiConfig',
     'eip',
     'split_dashboard',
 ]
