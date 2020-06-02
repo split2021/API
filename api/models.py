@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.postgres import fields as postgres
 
 import json
-from enum import IntEnum
+from enum import IntEnum, unique
 
 # Create your models here.
 
@@ -237,6 +237,7 @@ class Payment(models.Model, JsonizableMixin):
 
     json_fields = ['payments', 'group', 'total', 'currency']
 
+    @unique
     class STATUS(IntEnum):
         """
         """
@@ -244,6 +245,7 @@ class Payment(models.Model, JsonizableMixin):
         COMPLETED = 0
         FAILED = 1
         PROCESSING = 2
+        REFUNDED = 3
 
     def is_complete(self):
         for id, status in self.payments.items():

@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
 
 import time
 import json
@@ -110,6 +111,7 @@ class PaymentView(APIView):
             db_payment.payments[payment.id] = {'status': Payment.STATUS.PROCESSING}
 
         db_payment.save()
+        payments_links['id'] = db_payment.id
         return APIResponse(200, "Sucessfully created payments", payments_links)
 
 
@@ -127,7 +129,10 @@ class PaymentExecute(APIView):
 
         payment_id = request.GET.get("paymentId")
         payment = paypalrestsdk.Payment.find(payment_id)
-        db_payment =  Payment.objects.get(payments__contains={payment_id: {'status': Payment.STATUS.PROCESSING}})
+        try:
+            db_payment =  Payment.objects.get(payments__contains={payment_id: {'status': Payment.STATUS.PROCESSING}})
+        except ObjectDoesNotExist:
+            return APIResponse(404, "Payment does not exist or is not valid")
         db_payment.payments[payment_id]['status'] = Payment.STATUS.COMPLETED
         db_payment.save()
 
@@ -227,16 +232,23 @@ class RefundView(APIView):
     """
 
     authentification = False
-    implemented_methods = ('GET',)
+    implemented_methods = ('POST',)
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, id, *args, **kwargs):
         """
         """
 
-        db_payment = Payment.objects.get(id=kwargs['id'])
+        db_payment = Payment.objects.get(id=id)
+        failed = list()
 
         for payment in db_payment.payments.values():
-            sale = paypalrestsdk.Sale.find(payment['sale_id'])
+            if payment['status'] != Payment.STATUS.COMPLETED:
+                if payment['status'] == Payment.STATUS.PROCESSING:
+                    payment['status'] = Payment.STATUS.REFUNDED
+                continue
+
+            sale_id = payment['sale_id']
+            sale = paypalrestsdk.Sale.find(sale_id)
 
             refund = sale.refund({
                 "amount": {
@@ -244,9 +256,17 @@ class RefundView(APIView):
                     "currency": db_payment.currency
                 }
             })
-            if refund.success():
-                pass
+            if not refund.success():
+                failed.append(sale_id)
+            else:
+                payment['status'] = Payout.STATUS.REFUNDED
 
+        db_payment.save()
+
+        if failed:
+            return APIResponse(200, f"Refund failed for {', '.join(failed)}")
+        else:
+            return APIResponse(200, "Refund successful")
 
 class UserView(SingleObjectAPIView):
     model = User
