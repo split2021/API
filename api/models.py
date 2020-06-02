@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager, Group
+from django.core.files.base import File
 from django.db.models.query import QuerySet
 from django.contrib.auth.hashers import make_password
 from django.db import models
@@ -21,7 +22,12 @@ class JsonizableMixin(object):
             elif hasattr(field, 'id'):
                 value = {'id': field.id, 'url': field.url(request)}
             elif callable(field):
-                value = self.field()
+                value = field()
+            elif issubclass(field.__class__, File):
+                if request:
+                    value = request.build_absolute_uri(field.url)
+                else:
+                    value = field.url
             else:
                 value = field
             dump[fieldname] = value
@@ -87,6 +93,9 @@ class UserManager(BaseUserManager):
 
     create = create_user
 
+
+def get_icon_path(instance, filename):
+    return f"{instance.email}/{filename}"
 class User(AbstractUser, JsonizableMixin):
     """
     User model
@@ -99,11 +108,12 @@ class User(AbstractUser, JsonizableMixin):
     payment_methods = models.ManyToManyField("PaymentMethod", blank=True, related_name="users")
     score = models.IntegerField(default=0)
     title = models.CharField(max_length=255)
+    icon = models.ImageField(upload_to=get_icon_path, default="split.png")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
 
-    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count']
+    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count', 'icon']
 
     objects = UserManager()
 
@@ -119,6 +129,14 @@ class User(AbstractUser, JsonizableMixin):
         user = kwargs['instance']
         if kwargs['created']:
             user.groups.add(Group.objects.get_or_create(name="Client")[0].id)
+
+    def save(self, *args, **kwargs):
+        try:
+            this = User.objects.get(id=self.id)
+            if this.icon != self.icon:
+                this.icon.delete(save=False)
+        except: pass
+        super().save(*args, **kwargs)
 
     class QuerySet(QuerySet):
         def update(self, *args, **kwargs):
