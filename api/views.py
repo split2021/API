@@ -108,7 +108,7 @@ class PaymentView(APIView):
             if not payment.create():
                 return APIResponse(500, f"Failed to create payment for user {mail}")
             payments_links[mail] = list((link.method, link.href, price) for link in payment.links)
-            db_payment.payments[payment.id] = {'status': Payment.STATUS.PROCESSING}
+            db_payment.payments[payment.id] = {'status': Payment.STATUS.PROCESSING, 'amount': price}
 
         db_payment.save()
         payments_links['id'] = db_payment.id
@@ -252,14 +252,14 @@ class RefundView(APIView):
 
             refund = sale.refund({
                 "amount": {
-                    "total": db_payment.total,
+                    "total": payment['amount'],
                     "currency": db_payment.currency
                 }
             })
             if not refund.success():
                 failed.append(sale_id)
             else:
-                payment['status'] = Payout.STATUS.REFUNDED
+                payment['status'] = Payment.STATUS.REFUNDED
 
         db_payment.save()
 
