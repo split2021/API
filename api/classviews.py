@@ -82,7 +82,7 @@ class APIView(View):
                 return InvalidToken("No associated user")
             user = get_user_model().objects.get(id=json_payload['uid'])
 
-            if not user.id == request.path_info.split('/')[-1].split('?')[0] or not user.has_perm(f'api.{self.match_table[request.method]}_{self.verbose_name}'):
+            if not user.has_perm(f'api.{self.match_table[request.method]}_{self.verbose_name}') and not user.id == request.path_info.split('/')[-1].split('?')[0]:
                 return NotAllowed()
 
             if not 'time' in json_payload:
