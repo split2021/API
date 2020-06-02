@@ -38,7 +38,7 @@ class UserAdmin(DjangoUserAdmin):
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'payment_methods')}),
+        ('Personal info', {'fields': ('first_name', 'last_name', 'payment_methods', 'icon', 'image_tag')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
@@ -50,10 +50,15 @@ class UserAdmin(DjangoUserAdmin):
         }),
     )
     filter_horizontal = ('friends', 'payment_methods', 'user_permissions', 'groups')
+    readonly_fields = ('image_tag',)
     list_display = ('email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
     inlines = (PaymentGroupMembershipInline, FriendshipInline)
+
+    def image_tag(self, obj):
+        return mark_safe(f'<img src="{obj.icon.url}" height="150", width="150"/>')
+    image_tag.short_description = "User icon"
 
 
 @admin.register(PaymentMethod, site=split)

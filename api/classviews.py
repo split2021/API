@@ -53,54 +53,54 @@ class APIView(View):
          Dispatch the request to the appropriate method
         """
 
-        try:
+#        try:
 
-            headers = dict(request.headers)
-            Log.objects.create(
-                path=request.path,
-                method=request.method,
-                headers=headers,
-                body=request.body,
-                get=request.GET,
-                post=request.POST
-            )
+        headers = dict(request.headers)
+        Log.objects.create(
+            path=request.path,
+            method=request.method,
+            headers=headers,
+            body=request.body,
+            get=request.GET,
+            post=request.POST
+        )
 
-            if not self.authentification:
-                return super(APIView, self).dispatch(request, *args, **kwargs)
+        if not self.authentification:
+            return super(APIView, self).dispatch(request, *args, **kwargs)
 
-            if not 'Authorization' in headers:
-                return InvalidToken("Missing token")
-            header, payload, signature = bytes(headers['Authorization'].split(" ")[-1], 'utf-8').split(b".")
+        if not 'Authorization' in headers:
+            return InvalidToken("Missing token")
+        header, payload, signature = bytes(headers['Authorization'].split(" ")[-1], 'utf-8').split(b".")
 
-            if signature != generate_signature(header + payload):
-                return InvalidToken("Invalid signature")
+        if signature != generate_signature(header + payload):
+            return InvalidToken("Invalid signature")
 
-            decoded_payload = base64.b64decode(payload + b"====")
-            json_payload = json.loads(decoded_payload)
+        decoded_payload = base64.b64decode(payload + b"====")
+        json_payload = json.loads(decoded_payload)
 
-            if not 'uid' in json_payload:
-                return InvalidToken("No associated user")
-            user = get_user_model().objects.get(id=json_payload['uid'])
+        if not 'uid' in json_payload:
+            return InvalidToken("No associated user")
+        user = get_user_model().objects.get(id=json_payload['uid'])
 
-            if not user.id == request.path_info.split('/')[-1].split('?')[0] or not user.has_perm(f'api.{self.match_table[request.method]}_{self.verbose_name}'):
-                return NotAllowed()
+        if not user.id == request.path_info.split('/')[-1].split('?')[0] or not user.has_perm(f'api.{self.match_table[request.method]}_{self.verbose_name}'):
+            return NotAllowed()
 
-            if not 'time' in json_payload:
-                return InvalidToken("Invalid payload")
-            token_time = json_payload['time']
-            now = time.time()
+        if not 'time' in json_payload:
+            return InvalidToken("Invalid payload")
+        token_time = json_payload['time']
+        now = time.time()
 
-            if now - token_time < 3600:
-                if "limit" in request.GET:
-                    kwargs['limit'] = int(request.GET.get("limit"))
-                if "return" in request.GET:
-                    kwargs['return_'] = bool(request.GET.get("return"))
-                return super(APIView, self).dispatch(request, *args, **kwargs)
-            else:
-                return TokenExpired()
+        if now - token_time < 3600:
+            if "limit" in request.GET:
+                kwargs['limit'] = int(request.GET.get("limit"))
+            if "return" in request.GET:
+                kwargs['return_'] = bool(request.GET.get("return"))
+            return super(APIView, self).dispatch(request, *args, **kwargs)
+        else:
+            return TokenExpired()
 
-        except Exception as e:
-            return ExceptionCaught(e)
+#        except Exception as e:
+#            return ExceptionCaught(e)
 
     def head(self, request, *args, **kwargs):
         """
