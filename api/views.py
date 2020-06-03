@@ -275,10 +275,6 @@ class UsersView(MultipleObjectsAPIView):
     model = User
 
 
-class PaymentGroupMembershipView(SingleObjectAPIView):
-    model = PaymentGroupMembership
-
-
 class FriendshipView(SingleObjectAPIView):
     model = Friendship
 
@@ -291,3 +287,20 @@ class PaymentGroupView(SingleObjectAPIView):
 
 class PaymentGroupsView(MultipleObjectsAPIView):
     model = PaymentGroup
+
+    def post(self, request, return_=False, *args, **kwargs):
+        try:
+            data = request.body.decode('utf-8')
+            json_data = json.loads(data)
+        except JSONDecodeError:
+            return APIResponse(204, f"A content is required to create {self.verbose_name}")
+        object_ = self.model.objects.create(name=json_data['name'])
+        object_.users.add(*User.objects.filter(id__in=json_data['users']))
+        return APIResponse(201, f"{self.verbose_name_plural} created successfully", object_.json(request) and return_)
+
+
+class PaymentGroupMembershipView(SingleObjectAPIView):
+    model = PaymentGroupMembership
+
+class PaymentGroupMembershipsView(MultipleObjectsAPIView):
+    model = PaymentGroupMembership
