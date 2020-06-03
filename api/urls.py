@@ -20,9 +20,9 @@ urlpatterns = [
 
     path('users/<int:id>', UserView.as_view()),
     path('users/', UsersView.as_view()),
-    path('PaymentGroup_memberships/<int:id>', PaymentGroupMembershipView.as_view()),
+    path('payment_group_memberships/<int:id>', PaymentGroupMembershipView.as_view()),
     path('friendships/<int:id>', FriendshipView.as_view()),
     path('friendships/', FriendshipsView.as_view()),
-    path('PaymentGroups/<int:id>', PaymentGroupView.as_view()),
-    path('PaymentGroups/', PaymentGroupsView.as_view()),
+    path('payment_groups/<int:id>', PaymentGroupView.as_view()),
+    path('payment_groups/', PaymentGroupsView.as_view()),
 ]
