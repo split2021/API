@@ -37,6 +37,7 @@ jobs:
         run: git submodule foreach git pull origin master
       - name: Add changes
         run: git add .
+<<<<<<< HEAD
       - name: Push updates
         run: git push origin "merge_${{ github.sha }}"
       - name: Create pull request
@@ -60,3 +61,10 @@ jobs:
             -
           draft: false
           prerelease: false
+=======
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v2
+        with:
+          token: ${{ secrets.SPLIT_BOT_TOKEN }}
+          title: "Update API to commit ${{ github.sha }}"
+>>>>>>> Using peter-evans pull request creator
