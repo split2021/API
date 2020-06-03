@@ -275,10 +275,6 @@ class UsersView(MultipleObjectsAPIView):
     model = User
 
 
-class PaymentGroupMembershipView(SingleObjectAPIView):
-    model = PaymentGroupMembership
-
-
 class FriendshipView(SingleObjectAPIView):
     model = Friendship
 
@@ -291,3 +287,10 @@ class PaymentGroupView(SingleObjectAPIView):
 
 class PaymentGroupsView(MultipleObjectsAPIView):
     model = PaymentGroup
+
+
+class PaymentGroupMembershipView(SingleObjectAPIView):
+    model = PaymentGroupMembership
+
+class PaymentGroupMembershipsView(MultipleObjectsAPIView):
+    model = PaymentGroupMembership
