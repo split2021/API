@@ -45,12 +45,26 @@ class JsonizableMixin(object):
         return repr(self.json())
 
 
+class UserQuerySet(models.QuerySet):
+    """
+    Add password hashing on update
+    """
+
+    def update(self, *args, **kwargs):
+        if 'password' in kwargs:
+            kwargs['password'] = make_password(kwargs['password'])
+        return super().update(*args, **kwargs)
+
+
 class UserManager(BaseUserManager):
     """
     Define a model manager for User model with no username field
     """
 
     use_in_migrations = True
+
+    def get_queryset(self):
+        return UserQuerySet(self.model, using=self._db)
 
     def _create_user(self, email, password, **extra_fields):
         """
@@ -85,11 +99,6 @@ class UserManager(BaseUserManager):
             raise ValueError('Superuser must have is_superuser=True.')
 
         return self._create_user(email, password, **extra_fields)
-
-    #def update(self, *args, **kwargs):
-    #    if 'password' in kwargs:
-    #        kwargs['password'] = make_password(kwargs['password'])
-    #    return super().update(*args, **kwargs)
 
     create = create_user
 
@@ -137,12 +146,6 @@ class User(AbstractUser, JsonizableMixin):
                 this.icon.delete(save=False)
         except: pass
         super().save(*args, **kwargs)
-
-    class QuerySet(QuerySet):
-        def update(self, *args, **kwargs):
-            if 'password' in kwargs:
-                kwargs['password'] = make_password(kwargs['password'])
-            return super().update(*args, **kwargs)
 
 
 class Friendship(models.Model, JsonizableMixin):
