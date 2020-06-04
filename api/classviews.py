@@ -4,6 +4,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.urls import include, path
 
 import json
 from json.decoder import JSONDecodeError
@@ -15,12 +16,15 @@ from api.responses import APIResponse, NotImplemented, ExceptionCaught, NotAllow
 from api.models import Log
 from api.token import Token, generate_signature
 
+
 class APIView(View):
     """
      Describes how all API views are implemented by default
     """
 
     model = None
+    route = None
+    name = None
     authentification = True
     safe_methods = ('head', 'options', 'get')
     implemented_methods = ('head', 'options', 'get')
@@ -255,3 +259,7 @@ class MultipleObjectsAPIView(APIView):
 
     def delete(self, request, *args, **kwargs):
         return NotAllowed()
+
+
+class RouteView(object):
+    pass
