@@ -304,3 +304,9 @@ class PaymentGroupMembershipView(SingleObjectAPIView):
 
 class PaymentGroupMembershipsView(MultipleObjectsAPIView):
     model = PaymentGroupMembership
+
+class T(MultipleObjectsAPIView):
+    route = "t"
+    model = User
+    authentification = False
+    implemented_methods = ('GET',)

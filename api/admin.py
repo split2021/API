@@ -129,7 +129,7 @@ class LogAdmin(admin.ModelAdmin):
 class PaymentAdmin(admin.ModelAdmin):
     """
     """
-    list_display = ('group', 'total', 'currency', 'target', 'is_complete', 'is_failed', 'calculate_payout_price')
+    list_display = ('group', 'total', 'currency', 'target', 'is_complete', 'is_failed', 'is_refunded', 'calculate_payout_price')
 
 
 @admin.register(Group, site=split)
