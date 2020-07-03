@@ -6,21 +6,13 @@ from api.views import UserView, UsersView
 
 import json
 
-# Create your tests here.
+from . import getJsonFromResponse, emptyRequest
 
-def getJsonFromResponse(response):
-        content_decoded = response.content.decode()
-        return json.loads(content_decoded)
+# Create your tests here.
 
 class UserTestCase(TestCase):
     def setUp(self):
         self.userView = UserView()
-
-        self.emptyRequest = HttpRequest()
-        self.emptyRequest.META['CONTENT_LENGTH'] = 0
-        self.emptyRequest.META['SERVER_NAME'] = "127.0.0.1"
-        self.emptyRequest.META['SERVER_PORT'] = 8080
-        self.emptyRequest._body = b""
 
         User.objects.create_user(email="test@email.fr",
                                 password="testpassword",
@@ -33,7 +25,7 @@ class UserTestCase(TestCase):
     def test_get_existing_user(self):
         user = User.objects.get(email="test@email.fr")
 
-        response = self.userView.get(request=self.emptyRequest, id=user.id)
+        response = self.userView.get(request=emptyRequest, id=user.id)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 200)
@@ -46,7 +38,7 @@ class UserTestCase(TestCase):
         self.assertEqual(content_json['data']['username'],  user.username)
 
     def test_get_nonexisting_user(self):
-        response = self.userView.get(request=self.emptyRequest, id=42)
+        response = self.userView.get(request=emptyRequest, id=42)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 404)
@@ -57,7 +49,7 @@ class UserTestCase(TestCase):
         user = User.objects.get(email="test@email.fr")
 
         import copy
-        request = copy.deepcopy(self.emptyRequest)
+        request = copy.deepcopy(emptyRequest)
         request._body = json.dumps({
             'email': "testpatch@email.fr",
             'phone': "+33 2 15 35 95 75",
@@ -82,7 +74,7 @@ class UserTestCase(TestCase):
     def test_patch_existing_user_without_content(self):
         user = User.objects.get(email="test@email.fr")
 
-        response = self.userView.patch(request=self.emptyRequest, id=user.id)
+        response = self.userView.patch(request=emptyRequest, id=user.id)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 204)
@@ -90,7 +82,7 @@ class UserTestCase(TestCase):
 
     def test_patch_existing_user_with_content(self):
         import copy
-        request = copy.deepcopy(self.emptyRequest)
+        request = copy.deepcopy(emptyRequest)
         request._body = json.dumps({
             'email': "testpatch@email.fr",
             'phone': "+33 2 15 35 95 75",
@@ -108,7 +100,7 @@ class UserTestCase(TestCase):
 
     def test_post_user_with_content(self):
         import copy
-        request = copy.deepcopy(self.emptyRequest)
+        request = copy.deepcopy(emptyRequest)
         request._body = json.dumps({
             'email': "test2@email.fr",
             'password': "test2password",
@@ -125,7 +117,7 @@ class UserTestCase(TestCase):
         self.assertEqual(content_json['reason'], "user created successfully")
 
     def test_post_user_without_content(self):
-        response = self.userView.post(request=self.emptyRequest)
+        response = self.userView.post(request=emptyRequest)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 204)
@@ -136,7 +128,7 @@ class UserTestCase(TestCase):
         user = User.objects.get(email="test@email.fr")
 
         import copy
-        request = copy.deepcopy(self.emptyRequest)
+        request = copy.deepcopy(emptyRequest)
         request._body = json.dumps({
             'email': "testput@email.fr",
             'phone': "+33 3 15 35 95 75",
@@ -160,7 +152,7 @@ class UserTestCase(TestCase):
 
     def test_put_nonexisting_user_with_content(self):
         import copy
-        request = copy.deepcopy(self.emptyRequest)
+        request = copy.deepcopy(emptyRequest)
         request._body = json.dumps({
             'email': "testput@email.fr",
             'phone': "+33 3 15 35 95 75",
@@ -185,14 +177,14 @@ class UserTestCase(TestCase):
     def test_put_existing_user_without_content(self):
         user = User.objects.get(email="test@email.fr")
 
-        response = self.userView.put(request=self.emptyRequest, id=user.id)
+        response = self.userView.put(request=emptyRequest, id=user.id)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 204)
         self.assertEqual(content_json['reason'], "A content is required to emplace user")
 
     def test_put_nonexisting_user_without_content(self):
-        response = self.userView.put(request=self.emptyRequest, id=42)
+        response = self.userView.put(request=emptyRequest, id=42)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 204)
@@ -202,14 +194,14 @@ class UserTestCase(TestCase):
     def test_delete_existing_user(self):
         user = User.objects.get(email="test@email.fr")
 
-        response = self.userView.delete(request=self.emptyRequest, id=user.id)
+        response = self.userView.delete(request=emptyRequest, id=user.id)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 200)
         self.assertEqual(content_json['reason'], "user deleted successfully")
 
     def test_delete_nonexisting_user(self):
-        response = self.userView.delete(request=self.emptyRequest, id=42)
+        response = self.userView.delete(request=emptyRequest, id=42)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 404)
@@ -220,11 +212,11 @@ class UsersTestCase(TestCase):
     def setUp(self):
         self.usersView = UsersView()
 
-        self.emptyRequest = HttpRequest()
-        self.emptyRequest.META['CONTENT_LENGTH'] = 0
-        self.emptyRequest.META['SERVER_NAME'] = "127.0.0.1"
-        self.emptyRequest.META['SERVER_PORT'] = 8080
-        self.emptyRequest._body = b""
+        emptyRequest = HttpRequest()
+        emptyRequest.META['CONTENT_LENGTH'] = 0
+        emptyRequest.META['SERVER_NAME'] = "127.0.0.1"
+        emptyRequest.META['SERVER_PORT'] = 8080
+        emptyRequest._body = b""
 
         User.objects.create_user(email="test@email.fr",
                                 password="testpassword",
@@ -235,7 +227,7 @@ class UsersTestCase(TestCase):
                                 )
 
     def test_get_users(self):
-        response = self.usersView.get(request=self.emptyRequest)
+        response = self.usersView.get(request=emptyRequest)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 200)
@@ -244,7 +236,7 @@ class UsersTestCase(TestCase):
         self.assertEqual(type(content_json['data']), list)
 
     def test_patch_users(self):
-        response = self.usersView.patch(request=self.emptyRequest)
+        response = self.usersView.patch(request=emptyRequest)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 405)
@@ -252,7 +244,7 @@ class UsersTestCase(TestCase):
 
     def test_post_users_with_content(self):
         import copy
-        request = copy.deepcopy(self.emptyRequest)
+        request = copy.deepcopy(emptyRequest)
         request._body = json.dumps({
             'email': "test2@email.fr",
             'password': "test2password",
@@ -269,21 +261,21 @@ class UsersTestCase(TestCase):
         self.assertEqual(content_json['reason'], "users created successfully")
 
     def test_post_users_without_content(self):
-        response = self.usersView.post(request=self.emptyRequest)
+        response = self.usersView.post(request=emptyRequest)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 204)
         self.assertEqual(content_json['reason'], "A content is required to create user")
 
     def test_put_users(self):
-        response = self.usersView.put(request=self.emptyRequest)
+        response = self.usersView.put(request=emptyRequest)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 405)
         self.assertEqual(content_json['reason'], "Verb not allowed")
 
     def test_delete_users(self):
-        response = self.usersView.delete(request=self.emptyRequest)
+        response = self.usersView.delete(request=emptyRequest)
         content_json = getJsonFromResponse(response)
 
         self.assertEqual(content_json['statuscode'], 405)
