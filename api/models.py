@@ -237,10 +237,13 @@ class Payment(models.Model, JsonizableMixin):
     """
     """
 
-    OUR_FEE = 1.03
+    OUR_FEE = 1.042
+    OUR_FLAT = 0.45
     OUR_FEE_INVERSED = 1/OUR_FEE
-    PAYMENT_FEE = 1.029
-    PAYMENT_INVERSED_FEE = 1/PAYMENT_FEE
+    PAYMENT_FEE = 1.041
+    PAYOUT_FLAT = 0.35
+    CHECKOUT_FLAT = 0.35
+    PAYMENT_FEE_INVERSED = 1/PAYMENT_FEE
 
     EURO = "EUR"
     USD = "USD"
@@ -287,7 +290,13 @@ class Payment(models.Model, JsonizableMixin):
         return False
 
     def calculate_payout_price(self):
-        return round(self.OUR_FEE_INVERSED * self.total, 2)
+        return round(self.OUR_FEE_INVERSED * (self.total - self.OUR_FLAT - self.OUR_FLAT * self.group.users.count()), 2)
+
+    def calculate_paypal_part(self):
+        return round(self.total - self.PAYMENT_FEE_INVERSED * (self.total - self.PAYOUT_FLAT - self.CHECKOUT_FLAT * self.group.users.count()), 2)
+
+    def calculate_profit(self):
+        return round(self.total - self.calculate_payout_price() - self.calculate_paypal_part(), 2)
 
     def __str__(self):
         return str(self.id)
