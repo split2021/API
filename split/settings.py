@@ -20,12 +20,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ni^)v*b622$&8@8mf)l!&0()iotz4s%#o-f$q_g6v719p6n_3e'
-SECRET_TOKEN = b'test'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ['STAGE']) < 2
+DEBUG = int(os.environ.get('STAGE', 0)) < 2
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = "ni^)v*b622$&8@8mf)l!&0()iotz4s%#o-f$q_g6v719p6n_3e" if DEBUG else os.environ.get('SECRET_KEY')
+SECRET_TOKEN = bytes("test", "utf-8") if DEBUG else bytes(os.environ.get('SECRET_TOKEN'), "utf-8")
+
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '52.178.136.18', '40.112.78.121']
 
@@ -225,8 +226,15 @@ JET_THEMES = [
 
 
 ## PayPal
-paypalrestsdk.configure({
-    'mode': "sandbox",
-    'client_id': "ATa_26DBlcPtxaYCchJf4IeRU2OnzJD8eSoV2ZyKkUHgHZ5f5UH0SO4vwTtH7ESaK61F8KwHGCh_misI",
-    'client_secret': "ED-j2wGi56NAFH5BqUy4eHnCZmE9sRr4USIXwsc7FrvLr1ClpIb26qryDUN4yLTdeCDBTshCUssabgP2"
-})
+if DEBUG: 
+    paypalrestsdk.configure({
+        'mode': "sandbox",
+        'client_id': "ATa_26DBlcPtxaYCchJf4IeRU2OnzJD8eSoV2ZyKkUHgHZ5f5UH0SO4vwTtH7ESaK61F8KwHGCh_misI",
+        'client_secret': "ED-j2wGi56NAFH5BqUy4eHnCZmE9sRr4USIXwsc7FrvLr1ClpIb26qryDUN4yLTdeCDBTshCUssabgP2"
+    })
+else:
+    paypalrestsdk.configure({
+        'mode': "live",
+        'client_id': os.environ.get("PAYPAL_ID"),
+        'client_secret': os.environ.get("PAYPAL_SECRET")
+    })
