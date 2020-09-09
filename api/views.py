@@ -1,10 +1,13 @@
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
+from django.urls import get_resolver
+from django.http import HttpRequest
 
 import time
 import json
 import random
 import string
+from http import HTTPStatus
 
 import paypalrestsdk
 
@@ -14,6 +17,17 @@ from api.responses import APIResponse, ExceptionCaught
 from api.token import Token
 
 # Create your views here.
+
+class EndpointsList(APIView):
+    """
+     Return a json with the list of available endpoints
+    """
+
+    authentification = False
+    implemented_methods = ('GET',)
+
+    def get(self, request:HttpRequest) -> APIResponse:
+        return APIResponse(HTTPStatus.OK, "URLs available", sorted(set(view[1] for view in get_resolver(None).reverse_dict.values())))
 
 class LoginView(APIView):
     """
@@ -304,9 +318,3 @@ class PaymentGroupMembershipView(SingleObjectAPIView):
 
 class PaymentGroupMembershipsView(MultipleObjectsAPIView):
     model = PaymentGroupMembership
-
-class T(MultipleObjectsAPIView):
-    route = "t"
-    model = User
-    authentification = False
-    implemented_methods = ('GET',)

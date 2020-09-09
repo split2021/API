@@ -1,7 +1,7 @@
 from django.urls import include, path
 
 from api.views import (
-                        LoginView,
+                        EndpointsList, LoginView,
                         PaymentView, PaymentExecute, PayoutView, PaymentCanceled, RefundView,
                         UserView, UsersView,
                         FriendshipView, FriendshipsView,
@@ -10,6 +10,7 @@ from api.views import (
 )
 
 urlpatterns = [
+    path("", EndpointsList.as_view()),
     path('login', LoginView.as_view()),
 
     path('payment', PaymentView.as_view()),
