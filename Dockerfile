@@ -7,6 +7,7 @@ RUN mkdir /api
 WORKDIR /api
 
 ADD requirements.txt /api
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 ADD . /api/
