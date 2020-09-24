@@ -322,4 +322,4 @@ class PaymentGroupMembershipsView(MultipleObjectsAPIView):
 
 
 def redirect_website(request:HttpRequest):
-    return redirect("http://localhost:3000/")
+    return redirect(f"http://{request.get_host().split(':')[0]}:3000/")
