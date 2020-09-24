@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import get_resolver
 from django.http import HttpRequest
+from django.shortcuts import redirect
 
 import time
 import json
@@ -318,3 +319,7 @@ class PaymentGroupMembershipView(SingleObjectAPIView):
 
 class PaymentGroupMembershipsView(MultipleObjectsAPIView):
     model = PaymentGroupMembership
+
+
+def redirect_website(request:HttpRequest):
+    return redirect("http://localhost:3000/")
