@@ -14,7 +14,7 @@ from http import HTTPStatus
 import paypalrestsdk
 
 from django_modelapiview import APIView, ModelAPIView
-from django_modelapiview.responses import APIResponse, NotFound
+from django_modelapiview.responses import APIResponse, NotFound, ExceptionCaught
 
 from api.models import User, PaymentGroup, PaymentGroupMembership, Friendship, Payment
 
@@ -26,9 +26,9 @@ class PaymentView(APIView):
     """
 
     route = "payment"
-    enforce_authentification = False
+    enforce_authentification = True
 
-    def post(self, request, *args, **kwargs) -> APIResponse:
+    def post(self, request:HttpRequest, *args, **kwargs) -> APIResponse:
         """
         """
 
@@ -38,7 +38,7 @@ class PaymentView(APIView):
         currency = json_data.get('currency') or "EUR"
 
         group_id = json_data.get('group')
-        if group_id is None or PaymentGroup.objects.filter(id=group_id).count() == 0:
+        if group_id is None or PaymentGroup.objects.filter(id=group_id).exists():
             return APIResponse(400, f"A payment cannot be created without a group")
 
         total = round(json_data['total'], 2)
@@ -97,9 +97,9 @@ class PaymentExecute(APIView):
     """
 
     route = "payment/execute"
-    enforce_authentification = False
+    enforce_authentification = True
 
-    def get(self, request, *args, **kwargs) -> APIResponse:
+    def get(self, request:HttpRequest, *args, **kwargs) -> APIResponse:
         """
         """
 
@@ -147,15 +147,15 @@ class PaymentCanceled(APIView):
     """
 
     route = "payment/cancel"
-    enforce_authentification = False
+    enforce_authentification = True
 
-    def get(self, request, *args, **kwargs) -> APIResponse:
+    def get(self, request:HttpRequest, *args, **kwargs) -> APIResponse:
         """
         """
 
         payment_id = request.GET.get("paymentId")
         payment = paypalrestsdk.Payment.find(payment_id)
-        db_payment =  Payment.objects.get(payments__contains=[payment_id])
+        db_payment = Payment.objects.get(payments__contains=[payment_id])
         if db_payment.payments[payment_id] == Payment.STATUS.COMPLETED:
             return APIResponse(403, "Your payment is already completed")
         db_payment.payments[payment_id] = Payment.STATUS.FAILED
@@ -170,9 +170,9 @@ class PayoutView(APIView):
     """
 
     route = "payout"
-    enforce_authentification = False
+    enforce_authentification = True
 
-    def post(self, request, *args, **kwargs) -> APIResponse:
+    def post(self, request:HttpRequest, *args, **kwargs) -> APIResponse:
         """
         """
 
@@ -208,9 +208,9 @@ class RefundView(APIView):
     """
 
     route = "refund/<int:id>"
-    enforce_authentification = False
+    enforce_authentification = True
 
-    def post(self, request, id, *args, **kwargs) -> APIResponse:
+    def post(self, request:HttpRequest, id:int, *args, **kwargs) -> APIResponse:
         """
         """
 
@@ -250,16 +250,19 @@ class RefundView(APIView):
 class UserView(ModelAPIView):
     route = "users"
     model = User
+    enforce_authentification = True
 
 class FriendshipView(ModelAPIView):
     route = "friendships"
     model = Friendship
+    enforce_authentification = True
 
 class PaymentGroupView(ModelAPIView):
     route = "paymentgroups"
     model = PaymentGroup
+    enforce_authentification = True
 
-    def post(self, request, return_=False, *args, **kwargs) -> APIResponse:
+    def post(self, request:HttpRequest, return_:bool=False, *args, **kwargs) -> APIResponse:
         try:
             data = request.body.decode('utf-8')
             json_data = json.loads(data)
@@ -273,6 +276,7 @@ class PaymentGroupView(ModelAPIView):
 class PaymentGroupMembershipView(ModelAPIView):
     route = "paymentgroupmemberships"
     model = PaymentGroupMembership
+    enforce_authentification = True
 
 def redirect_website(request:HttpRequest):
     return redirect(f"http://{request.get_host().split(':')[0]}:3000/")
