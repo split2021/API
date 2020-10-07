@@ -5,6 +5,7 @@ from django.conf import settings
 import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
+import django_modelapiview
 
 
 class Migration(migrations.Migration):
@@ -20,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=42)),
             ],
-            bases=(models.Model, api.models.JsonizableMixin),
+            bases=(models.Model, django_modelapiview.JSONMixin),
         ),
         migrations.AddField(
             model_name='user',

@@ -6,68 +6,29 @@ from django.shortcuts import redirect
 
 import time
 import json
+from json import JSONDecodeError
 import random
 import string
 from http import HTTPStatus
 
 import paypalrestsdk
 
-from api.classviews import SingleObjectAPIView, MultipleObjectsAPIView, APIView
+from django_modelapiview import APIView, ModelAPIView
+from django_modelapiview.responses import APIResponse, NotFound
+
 from api.models import User, PaymentGroup, PaymentGroupMembership, Friendship, Payment
-from api.responses import APIResponse, ExceptionCaught
-from api.token import Token
 
 # Create your views here.
-
-class EndpointsList(APIView):
-    """
-     Return a json with the list of available endpoints
-    """
-
-    authentification = False
-    implemented_methods = ('GET',)
-
-    def get(self, request:HttpRequest) -> APIResponse:
-        return APIResponse(HTTPStatus.OK, "URLs available", sorted(set(view[1] for view in get_resolver(None).reverse_dict.values())))
-
-class LoginView(APIView):
-    """
-     Receive email and password and try to authenticate the user then
-     If successful, send back user information
-    """
-
-    authentification = False
-    implemented_methods = ('POST',)
-
-    def post(self, request, *args, **kwargs):
-        """
-        """
-
-        data = request.body.decode('utf-8')
-        json_data = json.loads(data)
-
-        user = authenticate(username=json_data['email'], password=json_data['password'])
-        if user is not None:
-            return APIResponse(200, "User logged in", {
-                'token': str(Token({
-                                'time': int(time.time()),
-                                'uid': user.id
-                            })),
-                'user': user.json(request)
-            })
-        else:
-            return APIResponse(401, "Wrong user credentials")
-
 
 class PaymentView(APIView):
     """
      Ask Personal account for payment
     """
 
-    authentification = False
-    implemented_methods = ('POST',)
+    route = "payment"
+    enforce_authentification = False
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> APIResponse:
         """
         """
 
@@ -135,10 +96,10 @@ class PaymentExecute(APIView):
      Execute redirected payment
     """
 
-    authentification = False
-    implemented_methods = ('GET',)
+    route = "payment/execute"
+    enforce_authentification = False
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> APIResponse:
         """
         """
 
@@ -185,10 +146,10 @@ class PaymentCanceled(APIView):
     """
     """
 
-    authentification = False
-    implemented_methods = ('GET',)
+    route = "payment/cancel"
+    enforce_authentification = False
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> APIResponse:
         """
         """
 
@@ -208,10 +169,10 @@ class PayoutView(APIView):
      Business -> Business / Personnal
     """
 
-    authentification = False
-    implemented_methods = ('GET',)
+    route = "payout"
+    enforce_authentification = False
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> APIResponse:
         """
         """
 
@@ -246,14 +207,17 @@ class RefundView(APIView):
      Use to ask a refund for all the users associated with one Payment
     """
 
-    authentification = False
-    implemented_methods = ('POST',)
+    route = "refund/<int:id>"
+    enforce_authentification = False
 
-    def post(self, request, id, *args, **kwargs):
+    def post(self, request, id, *args, **kwargs) -> APIResponse:
         """
         """
 
-        db_payment = Payment.objects.get(id=id)
+        try:
+            db_payment = Payment.objects.get(id=id)
+        except ObjectDoesNotExist as e:
+            return NotFound(str(e))
         failed = list()
 
         for payment in db_payment.payments.values():
@@ -283,27 +247,19 @@ class RefundView(APIView):
         else:
             return APIResponse(200, "Refund successful")
 
-class UserView(SingleObjectAPIView):
+class UserView(ModelAPIView):
+    route = "users"
     model = User
 
-class UsersView(MultipleObjectsAPIView):
-    model = User
-
-
-class FriendshipView(SingleObjectAPIView):
+class FriendshipView(ModelAPIView):
+    route = "friendships"
     model = Friendship
 
-class FriendshipsView(MultipleObjectsAPIView):
-    model = Friendship
-
-
-class PaymentGroupView(SingleObjectAPIView):
+class PaymentGroupView(ModelAPIView):
+    route = "paymentgroups"
     model = PaymentGroup
 
-class PaymentGroupsView(MultipleObjectsAPIView):
-    model = PaymentGroup
-
-    def post(self, request, return_=False, *args, **kwargs):
+    def post(self, request, return_=False, *args, **kwargs) -> APIResponse:
         try:
             data = request.body.decode('utf-8')
             json_data = json.loads(data)
@@ -314,12 +270,9 @@ class PaymentGroupsView(MultipleObjectsAPIView):
         return APIResponse(201, f"{self.verbose_name_plural} created successfully", object_.json(request) and return_)
 
 
-class PaymentGroupMembershipView(SingleObjectAPIView):
+class PaymentGroupMembershipView(ModelAPIView):
+    route = "paymentgroupmemberships"
     model = PaymentGroupMembership
-
-class PaymentGroupMembershipsView(MultipleObjectsAPIView):
-    model = PaymentGroupMembership
-
 
 def redirect_website(request:HttpRequest):
     return redirect(f"http://{request.get_host().split(':')[0]}:3000/")

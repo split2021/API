@@ -8,42 +8,9 @@ from django.contrib.postgres import fields as postgres
 import json
 from enum import IntEnum, unique
 
+from django_modelapiview import JSONMixin
+
 # Create your models here.
-
-class JsonizableMixin(object):
-    json_fields = []
-
-    def json(self, request=None):
-        dump = {'id': self.id}
-        for fieldname in self.json_fields:
-            field = getattr(self, fieldname)
-            if issubclass(field.__class__, models.manager.BaseManager):
-                value = [{'id': related.id, 'url': related.url(request)} for related in field.all().only('id')]
-            elif hasattr(field, 'id'):
-                value = {'id': field.id, 'url': field.url(request)}
-            elif callable(field):
-                value = field()
-            elif issubclass(field.__class__, File):
-                if request:
-                    value = request.build_absolute_uri(field.url)
-                else:
-                    value = field.url
-            else:
-                value = field
-            dump[fieldname] = value
-        if request is not None:
-            dump['url'] = self.url(request)
-        return dump
-
-    def url(self, request):
-        if request is not None:
-            return f"http://{request.get_host()}/api/{self._meta.verbose_name_plural}/{self.id}"
-        else:
-            return f"/api/{self._meta.verbose_name_plural}/{self.id}"
-
-    def __repr__(self):
-        return repr(self.json())
-
 
 class UserQuerySet(models.QuerySet):
     """
@@ -105,7 +72,7 @@ class UserManager(BaseUserManager):
 
 def get_icon_path(instance, filename):
     return f"{instance.email}/{filename}"
-class User(AbstractUser, JsonizableMixin):
+class User(AbstractUser, JSONMixin):
     """
     User model
     """
@@ -148,7 +115,7 @@ class User(AbstractUser, JsonizableMixin):
         super().save(*args, **kwargs)
 
 
-class Friendship(models.Model, JsonizableMixin):
+class Friendship(models.Model, JSONMixin):
     user1 = models.ForeignKey("User", on_delete=models.CASCADE, related_name="user1")
     user2 = models.ForeignKey("User", on_delete=models.CASCADE, related_name="user2")
 
@@ -171,7 +138,7 @@ class PaymentMethod(models.Model):
         pass
 
 
-class PaymentGroupMembership(models.Model, JsonizableMixin):
+class PaymentGroupMembership(models.Model, JSONMixin):
     group = models.ForeignKey("PaymentGroup", on_delete=models.CASCADE)
     user = models.ForeignKey("User", on_delete=models.CASCADE)
 
@@ -181,7 +148,7 @@ class PaymentGroupMembership(models.Model, JsonizableMixin):
         unique_together = ('group', 'user')
 
 
-class PaymentGroup(models.Model, JsonizableMixin):
+class PaymentGroup(models.Model, JSONMixin):
     """
     Store a list of users than can make payments together
     """
@@ -233,7 +200,7 @@ class Log(models.Model):
     objects = LogManager()
 
 
-class Payment(models.Model, JsonizableMixin):
+class Payment(models.Model, JSONMixin):
     """
     """
 

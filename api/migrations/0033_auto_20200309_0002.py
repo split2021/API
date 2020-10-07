@@ -4,7 +4,7 @@ import api.models
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-
+import django_modelapiview
 
 class Migration(migrations.Migration):
 
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
             ],
-            bases=(models.Model, api.models.JsonizableMixin),
+            bases=(models.Model, django_modelapiview.JSONMixin),
         ),
         migrations.RemoveField(
             model_name='user',

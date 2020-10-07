@@ -4,7 +4,7 @@ import api.models
 import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
-
+import django_modelapiview
 
 class Migration(migrations.Migration):
 
@@ -20,6 +20,6 @@ class Migration(migrations.Migration):
                 ('payments', django.contrib.postgres.fields.jsonb.JSONField()),
                 ('group', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='api.Group')),
             ],
-            bases=(models.Model, api.models.JsonizableMixin),
+            bases=(models.Model, django_modelapiview.JSONMixin),
         ),
     ]
