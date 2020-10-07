@@ -239,19 +239,19 @@ class Payment(models.Model, JSONMixin):
         REFUNDED = 3
 
     def is_complete(self):
-        for id, infos in self.payments.items():
+        for infos in self.payments.values():
             if infos['status'] != self.STATUS.COMPLETED:
                 return False
         return True
 
     def is_failed(self):
-        for id, infos in self.payments.items():
+        for infos in self.payments.values():
             if infos['status'] == self.STATUS.FAILED:
                 return True
         return False
 
     def is_refunded(self):
-        for id, infos in self.payments.items():
+        for infos in self.payments.values():
             if infos['status'] == self.STATUS.REFUNDED:
                 return True
         return False

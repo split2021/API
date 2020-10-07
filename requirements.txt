@@ -8,7 +8,7 @@ cryptography==2.9
 Django==3.1
 django-3-jet==1.0.8
 django-prettyjson==0.4.1
-django-modelapiview==1.4.6
+django-modelapiview==1.4.8
 gunicorn==19.9.0
 idna==2.9
 paypalrestsdk==1.13.1

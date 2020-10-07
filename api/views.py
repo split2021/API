@@ -38,7 +38,7 @@ class PaymentView(APIView):
         currency = json_data.get('currency') or "EUR"
 
         group_id = json_data.get('group')
-        if group_id is None or PaymentGroup.objects.filter(id=group_id).exists():
+        if group_id is None or not PaymentGroup.objects.filter(id=group_id).exists():
             return APIResponse(400, f"A payment cannot be created without a group")
 
         total = round(json_data['total'], 2)
@@ -154,7 +154,6 @@ class PaymentCanceled(APIView):
         """
 
         payment_id = request.GET.get("paymentId")
-        payment = paypalrestsdk.Payment.find(payment_id)
         db_payment = Payment.objects.get(payments__contains=[payment_id])
         if db_payment.payments[payment_id] == Payment.STATUS.COMPLETED:
             return APIResponse(403, "Your payment is already completed")
