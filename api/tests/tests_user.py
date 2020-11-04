@@ -243,8 +243,8 @@ class UsersTestCase(TestCase):
         self.assertEqual(content_json['reason'], "Verb not allowed")
 
     def test_post_users_with_content(self):
-        import copy
-        request = copy.deepcopy(emptyRequest)
+        from copy import deepcopy
+        request = deepcopy(emptyRequest)
         request._body = json.dumps({
             'email': "test2@email.fr",
             'password': "test2password",

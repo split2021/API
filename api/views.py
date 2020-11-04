@@ -251,10 +251,10 @@ class UserView(ModelAPIView):
     model = User
     enforce_authentification = True
 
-class FriendshipView(ModelAPIView):
-    route = "friendships"
-    model = Friendship
-    enforce_authentification = True
+# class FriendshipView(ModelAPIView):
+#     route = "friendships"
+#     model = Friendship
+#     enforce_authentification = True
 
 class PaymentGroupView(ModelAPIView):
     route = "paymentgroups"
@@ -272,10 +272,10 @@ class PaymentGroupView(ModelAPIView):
         return APIResponse(201, f"{self.verbose_name_plural} created successfully", object_.json(request) and return_)
 
 
-class PaymentGroupMembershipView(ModelAPIView):
-    route = "paymentgroupmemberships"
-    model = PaymentGroupMembership
-    enforce_authentification = True
+# class PaymentGroupMembershipView(ModelAPIView):
+#     route = "paymentgroupmemberships"
+#     model = PaymentGroupMembership
+#     enforce_authentification = True
 
 def redirect_website(request:HttpRequest):
     return redirect(f"http://{request.get_host().split(':')[0]}:3000/")
