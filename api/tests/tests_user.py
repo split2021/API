@@ -80,7 +80,7 @@ class UserTestCase(TestCase):
         self.assertEqual(content_json['statuscode'], 204)
         self.assertEqual(content_json['reason'], "A content is required to update user")
 
-    def test_patch_existing_user_with_content(self):
+    def test_patch_non_existing_user_with_content(self):
         import copy
         request = copy.deepcopy(emptyRequest)
         request._body = json.dumps({
