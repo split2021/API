@@ -85,12 +85,12 @@ class User(AbstractUser, JSONMixin):
     score = models.IntegerField(default=0)
     title = models.CharField(max_length=255)
     icon = models.ImageField(upload_to=get_icon_path, default="split.png")
-    pro = models.BooleanField(default=False)
+    is_pro = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
 
-    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count', 'icon', 'pro']
+    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count', 'icon', 'is_pro']
 
     objects = UserManager()
 
