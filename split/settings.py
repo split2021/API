@@ -57,6 +57,7 @@ LOGGING = {
 INSTALLED_APPS = [
     'jet.dashboard',
     'jet',
+    'django_modelapiview',
     #'django.contrib.admin',
     'split.apps.SplitAdminConfig',
     'django.contrib.auth',
