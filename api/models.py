@@ -90,7 +90,7 @@ class User(AbstractUser, JSONMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
 
-    json_fields = ['email', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count', 'icon', 'is_pro']
+    json_fields = ['email', 'password', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count', 'icon', 'is_pro']
 
     objects = UserManager()
 

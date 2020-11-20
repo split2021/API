@@ -246,10 +246,12 @@ class RefundView(APIView):
         else:
             return APIResponse(200, "Refund successful")
 
+
 class UserView(ModelAPIView):
     route = "users"
     model = User
     enforce_authentification = True
+
 
 # class FriendshipView(ModelAPIView):
 #     route = "friendships"
