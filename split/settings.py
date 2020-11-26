@@ -28,7 +28,7 @@ SECRET_KEY = "ni^)v*b622$&8@8mf)l!&0()iotz4s%#o-f$q_g6v719p6n_3e" if DEBUG else 
 SECRET_TOKEN = bytes("test", "utf-8") if DEBUG else bytes(os.environ.get('SECRET_TOKEN'), "utf-8")
 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '52.178.136.18', '40.112.78.121']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '52.178.136.18', '40.112.78.121', 'api.pp.split2021.live', 'api.split2021.live']
 
 LOGGING = {
     'version': 1,
