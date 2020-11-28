@@ -20,4 +20,5 @@ jobs:
           cd Split
           git pull
           git submodule foreach git pull origin master
-          docker-compose -f docker-compose.yml -f docker-compose.preproduction.yml restart api
+          docker-compose -f docker-compose.yml -f docker-compose.preproduction.yml stop api
+          docker-compose -f docker-compose.yml -f docker-compose.preproduction.yml up --build api
