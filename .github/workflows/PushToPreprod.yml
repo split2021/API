@@ -16,4 +16,7 @@ jobs:
         USERNAME: ${{ secrets.PREPROD_USER }}
         PORT: ${{ secrets.PREPROD_PORT }}
         KEY: ${{ secrets.PREPROD_KEY }}
-        script: ls
+        script: |
+          cd Split
+          git submodule foreach git pull origin master
+          docker-compose -f docker-compose.yml -f docker-compose.preproduction.yml restart api
