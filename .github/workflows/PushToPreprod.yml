@@ -1,17 +1,19 @@
-name: PushToPreprod
+name: Deploy
 
 on: [push]
 
 jobs:
   build:
 
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - name: Execute SSH commmands on remote server
-        uses: JimCronqvist/action-ssh@master
-        with:
-          hosts: ${{ secrets.PREPROD_USER }}
-          privateKey: ${{ secrets.PREPROD_KEY }}
-          command: ls -lah
+    - uses: actions/checkout@v1
+    - name: Executing remote command
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.PREPROD_HOST }}
+        USERNAME: ${{ secrets.PREPROD_USER }}
+        PORT: ${{ secrets.PREPROD_PORT }}
+        KEY: ${{ secrets.PREPROD_KEY }}
+        script: ls
