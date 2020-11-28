@@ -1,0 +1,16 @@
+name: PushToPreprod
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Execute SSH commmands on remote server
+      uses: JimCronqvist/action-ssh@master
+      with:
+        hosts: ${{ secrets.PREPROD_USER }}
+        privateKey: ${{ secrets.PREPROD_KEY }}
+        command: ls -lah
