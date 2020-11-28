@@ -88,6 +88,7 @@ class User(AbstractUser, JSONMixin):
     is_pro = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
+    EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
 
     json_fields = ['email', 'password', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count', 'icon', 'is_pro']
