@@ -253,10 +253,10 @@ class UserView(ModelAPIView):
     enforce_authentification = True
 
 
-# class FriendshipView(ModelAPIView):
-#     route = "friendships"
-#     model = Friendship
-#     enforce_authentification = True
+class FriendshipView(ModelAPIView):
+    route = "friendships"
+    model = Friendship
+    enforce_authentification = True
 
 class PaymentGroupView(ModelAPIView):
     route = "paymentgroups"
