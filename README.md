@@ -7,6 +7,7 @@
 ## Documentation
 
 The API endpoints documentation can be found [here](https://documenter.getpostman.com/view/6975668/S1EUtFTJ?version=latest)
+The developper documentation of django_modelapiview (which is the core of our API) is available on [pypi](https://pypi.org/project/django-modelapiview/) or on its [repository](https://github.com/TiphaineLAURENT/Django_APIView)
 
 HTTP Status Codes matches [these ones](https://www.restapitutorial.com/httpstatuscodes.html)
 
