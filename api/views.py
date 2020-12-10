@@ -21,7 +21,7 @@ from api.models import User, PaymentGroup, PaymentGroupMembership, Friendship, P
 
 # Create your views here.
 
-class PaymentView(APIView):
+class PaymentCreateView(APIView):
     """
      Ask Personal account for payment
     """
@@ -285,7 +285,3 @@ class PaymentView(ModelAPIView):
     route = "payments"
     model = Payment
     enforce_authentification = True
-
-
-def redirect_website(request:HttpRequest):
-    return redirect(f"http://{request.get_host().split(':')[0]}:3000/")
