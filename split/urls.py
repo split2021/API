@@ -21,13 +21,10 @@ from django.conf.urls.static import static
 from split.admin import split
 import api.urls as api
 
-from api.views import redirect_website
-
 urlpatterns = [
     #path("admin/", admin.site.urls),
     path("dashboard/", split.urls),
     path("api/", include(api)),
     path("jet/", include("jet.urls", "jet")),  # Django JET URLS
     path("jet/dashboard/", include("jet.dashboard.urls", "jet-dashboard")),  # Django JET dashboard URLS
-    path("", redirect_website, name="website"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
