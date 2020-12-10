@@ -136,3 +136,14 @@ class PaymentAdmin(admin.ModelAdmin):
 class GroupAdmin(admin.ModelAdmin):
     """
     """
+
+
+## Register all, not already registered, models
+
+from django.apps import apps
+
+for model in apps.get_app_config("api").get_models():
+    try:
+        split.register(model)
+    except admin.sites.AlreadyRegistered:
+        pass

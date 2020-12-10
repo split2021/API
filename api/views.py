@@ -17,7 +17,7 @@ import paypalrestsdk
 from django_modelapiview import APIView, ModelAPIView
 from django_modelapiview.responses import APIResponse, NotFound, ExceptionCaught
 
-from api.models import User, PaymentGroup, PaymentGroupMembership, Friendship, Payment, Payment
+from api.models import Menu, MenuItem, User, PaymentGroup, PaymentGroupMembership, Friendship, Payment, Payment
 
 # Create your views here.
 
@@ -285,3 +285,15 @@ class PaymentView(ModelAPIView):
     route = "payments"
     model = Payment
     enforce_authentification = True
+
+
+class MenuView(ModelAPIView):
+    route = "menus"
+    model = Menu
+    enforce_authentification = False
+
+
+class MenuItemView(ModelAPIView):
+    route = "menuitems"
+    model = MenuItem
+    enforce_authentification = False

@@ -3,6 +3,7 @@ from django.core.files.base import File
 from django.db.models.query import QuerySet
 from django.contrib.auth.hashers import make_password
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.contrib.postgres import fields as postgres
 
 import json
@@ -272,3 +273,27 @@ class Payment(models.Model, JSONMixin):
 
     class Meta:
         pass
+
+
+class MenuItem(models.Model, JSONMixin):
+    """
+    """
+
+    name = models.CharField(max_length=255, default="")
+    price = models.FloatField(default=0)
+
+    menu = models.ForeignKey("Menu", models.CASCADE, related_name="items")
+
+    json_fields = ['name', 'price', 'menu']
+
+
+class Menu(models.Model, JSONMixin):
+    """
+    """
+
+    name = models.CharField(max_length=255, default="")
+
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="menus")
+    # items
+
+    json_fields = ['name', 'user', 'items']
