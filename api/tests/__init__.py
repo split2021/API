@@ -11,6 +11,7 @@ emptyRequest._body = b""
 emptyRequest.META['CONTENT_LENGTH'] = len(emptyRequest._body)
 emptyRequest.META['SERVER_NAME'] = "testserver"
 emptyRequest.META['SERVER_PORT'] = 8080
+emptyRequest.META['QUERY_STRING'] = "/api/"
 
 baseKwargs = {
     'request': emptyRequest,
