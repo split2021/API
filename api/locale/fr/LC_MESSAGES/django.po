@@ -1,0 +1,105 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-12-10 13:40+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: admin.py:74
+msgid "empty"
+msgstr "vide"
+
+#: admin.py:88
+msgid "True"
+msgstr "Vrai"
+
+#: admin.py:89
+msgid "False"
+msgstr "Faux"
+
+#: views.py:43
+msgid "A payment cannot be created without a group"
+msgstr "Un paiement ne peut pas être créé sans un groupe"
+
+#: views.py:48
+msgid "A payment cannot be created without at least one user"
+msgstr "Un paiement ne peut pas être créé sans au moins un utilisateur"
+
+#: views.py:50
+msgid "At least one user does not exist"
+msgstr "Au moins un utilisateur n'existe pas"
+
+#: views.py:54
+#, python-format
+msgid "Total (%(total)d) does not match users sum (%(user_sum)d)"
+msgstr "Le total (%(total)d) ne correspond pas à la somme (%(user_sum)d)"
+
+#: views.py:86
+#, python-format
+msgid "Failed to create payment for user %(mail)s"
+msgstr "Impossible de créé un paiement pour l'utilisateur %(mail)s"
+
+#: views.py:92
+msgid "Sucessfully created payments"
+msgstr "La création des paiements a réussi"
+
+#: views.py:112
+msgid "Payment does not exist or is not valid"
+msgstr "Ce paiement n'existe pas ou n'est pas valide"
+
+#: views.py:137
+msgid "Sucessfully completed payment"
+msgstr "Paiement complété avec succès"
+
+#: views.py:141
+msgid "Successfully executed payment"
+msgstr "Paiement éxécuté avec succès"
+
+#: views.py:143
+msgid "Failed to execute payment"
+msgstr "Impossible d'éxécuter ce paiement"
+
+#: views.py:160
+msgid "Your payment is already completed"
+msgstr "Votre paiement est déjà complété"
+
+#: views.py:163
+msgid "Payment canceled"
+msgstr "Paiement annulé"
+
+#: views.py:200
+#, python-format
+msgid "Payout %(payout_batch_id)d created successfully"
+msgstr "Payout %(payout_batch_id)d créé avec succès"
+
+#: views.py:246
+#, python-format
+msgid "Refund failed for %(payments_failed)s"
+msgstr "Echec du remboursement pour %(payments_failed)s"
+
+#: views.py:248
+msgid "Refund successful"
+msgstr "Remboursement effectué avec succès"
+
+#: views.py:272
+#, python-format
+msgid "A content is required to create %(verbose_name)s"
+msgstr "Un contenu est requis pour créer %(verbose_name)s"
+
+#: views.py:275
+#, python-format
+msgid "%(verbose_name_plural)s created successfully"
+msgstr "%(verbose_name_plural)s créé avec succès"
