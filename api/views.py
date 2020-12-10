@@ -17,7 +17,7 @@ import paypalrestsdk
 from django_modelapiview import APIView, ModelAPIView
 from django_modelapiview.responses import APIResponse, NotFound, ExceptionCaught
 
-from api.models import User, PaymentGroup, PaymentGroupMembership, Friendship, Payment
+from api.models import User, PaymentGroup, PaymentGroupMembership, Friendship, Payment, Payment
 
 # Create your views here.
 
@@ -279,6 +279,13 @@ class PaymentGroupView(ModelAPIView):
 #     route = "paymentgroupmemberships"
 #     model = PaymentGroupMembership
 #     enforce_authentification = True
+
+
+class PaymentView(ModelAPIView):
+    route = "payments"
+    model = Payment
+    enforce_authentification = True
+
 
 def redirect_website(request:HttpRequest):
     return redirect(f"http://{request.get_host().split(':')[0]}:3000/")

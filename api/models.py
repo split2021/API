@@ -91,7 +91,7 @@ class User(AbstractUser, JSONMixin):
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = ['password']
 
-    json_fields = ['email', 'password', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count', 'icon', 'is_pro']
+    json_fields = ['email', 'password', 'last_name', 'first_name', 'phone', 'username', 'friends', 'payment_methods', 'payment_groups', 'friends_count', 'payment_methods_count', 'icon', 'is_pro', 'date_joined']
 
     objects = UserManager()
 
@@ -228,7 +228,7 @@ class Payment(models.Model, JSONMixin):
     currency = models.CharField(max_length=4, choices=CURRENCIES, default=EURO)
     target = models.EmailField()
 
-    json_fields = ['payments', 'group', 'total', 'currency']
+    json_fields = ['payments', 'group', 'total', 'currency', 'target']
 
     @unique
     class STATUS(IntEnum):
