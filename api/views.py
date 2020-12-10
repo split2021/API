@@ -14,7 +14,7 @@ from http import HTTPStatus
 
 import paypalrestsdk
 
-from django_modelapiview import APIView, ModelAPIView
+from django_modelapiview import APIView, ModelAPIView, JSONMixin
 from django_modelapiview.responses import APIResponse, NotFound, ExceptionCaught
 
 from api.models import Menu, MenuItem, User, PaymentGroup, PaymentGroupMembership, Friendship, Payment, Payment
@@ -264,15 +264,15 @@ class PaymentGroupView(ModelAPIView):
     model = PaymentGroup
     enforce_authentification = True
 
-    def post(self, request:HttpRequest, return_:bool=False, *args, **kwargs) -> APIResponse:
+    def post(self, request:HttpRequest, *args, **kwargs) -> APIResponse:
         try:
             data = request.body.decode('utf-8')
             json_data = json.loads(data)
         except JSONDecodeError:
-            return APIResponse(204, _("A content is required to create %(verbose_name)s") % {'verbose_name' : self.verbose_name})
-        object_ = self.model.objects.create(name=json_data['name'])
-        object_.users.add(*User.objects.filter(id__in=json_data['users']))
-        return APIResponse(201, _("%(verbose_name_plural)s created successfully") % {'verbose_name_plural': self.verbose_name_plural}, object_.json(request) and return_)
+            return APIResponse(204, _("A content is required to create %(verbose_name)s") % {'verbose_name' : self.singular_name})
+        object_: JSONMixin = self.model.objects.create(name=json_data['name'])
+        object_.users.add(*User.objects.filter(id__in=json_data['users'].split(",")))
+        return APIResponse(201, _("%(verbose_name_plural)s created successfully") % {'verbose_name_plural': self.plural_name}, object_.serialize(request))
 
 
 # class PaymentGroupMembershipView(ModelAPIView):
