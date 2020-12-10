@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.urls import get_resolver
 from django.http import HttpRequest
 from django.shortcuts import redirect
+from django.utils.translation import gettext as _
 
 import time
 import json
@@ -39,18 +40,18 @@ class PaymentView(APIView):
 
         group_id = json_data.get('group')
         if group_id is None or not PaymentGroup.objects.filter(id=group_id).exists():
-            return APIResponse(400, f"A payment cannot be created without a group")
+            return APIResponse(400, _("A payment cannot be created without a group"))
 
         total = round(json_data['total'], 2)
         users_mail = json_data['users']
         if not users_mail:
-            return APIResponse(400, f"A payment cannot be created without at least one user")
+            return APIResponse(400, _("A payment cannot be created without at least one user"))
         if User.objects.filter(email__in=users_mail).count() != len(users_mail):
-            return APIResponse(400, f"At least one user does not exist")
+            return APIResponse(400, _("At least one user does not exist"))
 
         user_sum = round(sum(users_mail.values()), 2)
         if user_sum != total:
-            return APIResponse(400, f"Total ({total}) does not match users sum ({user_sum})")
+            return APIResponse(400, _("Total (%(total)d) does not match users sum (%(user_sum)d)") % {'total': total, 'user_sum': user_sum})
         target = json_data['target']
 
         payments_links = {}
@@ -82,13 +83,13 @@ class PaymentView(APIView):
                 }]
             })
             if not payment.create():
-                return APIResponse(500, f"Failed to create payment for user {mail}")
+                return APIResponse(500, _("Failed to create payment for user %(mail)s") % {'mail': mail})
             payments_links[mail] = list((link.method, link.href, price) for link in payment.links)
             db_payment.payments[payment.id] = {'status': Payment.STATUS.PROCESSING, 'amount': price}
 
         db_payment.save()
         payments_links['id'] = db_payment.id
-        return APIResponse(200, "Sucessfully created payments", payments_links)
+        return APIResponse(200, _("Sucessfully created payments"), payments_links)
 
 
 class PaymentExecute(APIView):
@@ -108,7 +109,7 @@ class PaymentExecute(APIView):
         try:
             db_payment =  Payment.objects.get(payments__contains={payment_id: {'status': Payment.STATUS.PROCESSING}})
         except ObjectDoesNotExist:
-            return APIResponse(404, "Payment does not exist or is not valid")
+            return APIResponse(404, _("Payment does not exist or is not valid"))
         db_payment.payments[payment_id]['status'] = Payment.STATUS.COMPLETED
         db_payment.save()
 
@@ -133,13 +134,13 @@ class PaymentExecute(APIView):
                     }]
                 })
                 if payout.create(sync_mode=False):
-                    return APIResponse(200, "Sucessfully completed payment")
+                    return APIResponse(200, _("Sucessfully completed payment"))
                 else:
                     return APIResponse(500, payout.error)
             else:
-                return APIResponse(200, "Successfully executed payment")
+                return APIResponse(200, _("Successfully executed payment"))
         else:
-            return APIResponse(500, "Failed to execute payment")
+            return APIResponse(500, _("Failed to execute payment"))
 
 
 class PaymentCanceled(APIView):
@@ -156,10 +157,10 @@ class PaymentCanceled(APIView):
         payment_id = request.GET.get("paymentId")
         db_payment = Payment.objects.get(payments__contains=[payment_id])
         if db_payment.payments[payment_id] == Payment.STATUS.COMPLETED:
-            return APIResponse(403, "Your payment is already completed")
+            return APIResponse(403, _("Your payment is already completed"))
         db_payment.payments[payment_id] = Payment.STATUS.FAILED
         db_payment.save()
-        return APIResponse(200, "Payment canceled")
+        return APIResponse(200, _("Payment canceled"))
 
 
 class PayoutView(APIView):
@@ -196,7 +197,7 @@ class PayoutView(APIView):
         })
 
         if payout.create(sync_mode=False):
-            return APIResponse(200, f"payout {payout.batch_header.payout_batch_id} created successfully")
+            return APIResponse(200, _("Payout %(payout_batch_id)d created successfully") % {'payout_batch_id': payout.batch_header.payout_batch_id})
         else:
             return APIResponse(500, payout.error)
 
@@ -242,9 +243,9 @@ class RefundView(APIView):
         db_payment.save()
 
         if failed:
-            return APIResponse(200, f"Refund failed for {', '.join(failed)}")
+            return APIResponse(200, _("Refund failed for %(payments_failed)s") % {'payments_faled': ', '.join(failed)})
         else:
-            return APIResponse(200, "Refund successful")
+            return APIResponse(200, _("Refund successful"))
 
 
 class UserView(ModelAPIView):
@@ -268,10 +269,10 @@ class PaymentGroupView(ModelAPIView):
             data = request.body.decode('utf-8')
             json_data = json.loads(data)
         except JSONDecodeError:
-            return APIResponse(204, f"A content is required to create {self.verbose_name}")
+            return APIResponse(204, _("A content is required to create %(verbose_name)s") % {'verbose_name' : self.verbose_name})
         object_ = self.model.objects.create(name=json_data['name'])
         object_.users.add(*User.objects.filter(id__in=json_data['users']))
-        return APIResponse(201, f"{self.verbose_name_plural} created successfully", object_.json(request) and return_)
+        return APIResponse(201, _("%(verbose_name_plural)s created successfully") % {'verbose_name_plural': self.verbose_name_plural}, object_.json(request) and return_)
 
 
 # class PaymentGroupMembershipView(ModelAPIView):
