@@ -98,7 +98,7 @@ class PaymentExecute(APIView):
     """
 
     route = "payment/execute"
-    enforce_authentification = True
+    enforce_authentification = False
 
     def get(self, request:HttpRequest, *args, **kwargs) -> APIResponse:
         """
@@ -148,7 +148,7 @@ class PaymentCanceled(APIView):
     """
 
     route = "payment/cancel"
-    enforce_authentification = True
+    enforce_authentification = False
 
     def get(self, request:HttpRequest, *args, **kwargs) -> APIResponse:
         """
