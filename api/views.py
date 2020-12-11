@@ -105,7 +105,7 @@ class PaymentExecute(APIView):
         try:
             db_payment =  Payment.objects.get(payments__contains={payment_id: {'status': Payment.STATUS.PROCESSING}})
         except ObjectDoesNotExist:
-            return APIResponse(HTTPStatus.NOT_FOUND, _("Payment does not exist or is not valid"))
+            return APIResponse(HTTPStatus.NOT_FOUND, _("Payment does not exist or is not valid")) # Redirection
         db_payment.payments[payment_id]['status'] = Payment.STATUS.COMPLETED
         db_payment.save()
 
@@ -130,13 +130,13 @@ class PaymentExecute(APIView):
                     }]
                 })
                 if payout.create(sync_mode=False):
-                    return APIResponse(HTTPStatus.OK, _("Sucessfully completed payment"))
+                    return APIResponse(HTTPStatus.OK, _("Sucessfully completed payment")) # Redirection
                 else:
-                    return APIResponse(HTTPStatus.INTERNAL_SERVER_ERROR, payout.error)
+                    return APIResponse(HTTPStatus.INTERNAL_SERVER_ERROR, payout.error) # Redirection
             else:
-                return APIResponse(HTTPStatus.OK, _("Successfully executed payment"))
+                return APIResponse(HTTPStatus.OK, _("Successfully executed payment")) # Redirection
         else:
-            return APIResponse(HTTPStatus.INTERNAL_SERVER_ERROR, _("Failed to execute payment"))
+            return APIResponse(HTTPStatus.INTERNAL_SERVER_ERROR, _("Failed to execute payment")) # Redirection
 
 
 class PaymentCanceled(APIView):
@@ -153,10 +153,10 @@ class PaymentCanceled(APIView):
         payment_id = request.GET.get("paymentId")
         db_payment = Payment.objects.get(payments__contains=[payment_id])
         if db_payment.payments[payment_id] == Payment.STATUS.COMPLETED:
-            return APIResponse(HTTPStatus.FORBIDDEN, _("Your payment is already completed"))
+            return APIResponse(HTTPStatus.FORBIDDEN, _("Your payment is already completed")) # Redirection
         db_payment.payments[payment_id] = Payment.STATUS.FAILED
         db_payment.save()
-        return APIResponse(HTTPStatus.OK, _("Payment canceled"))
+        return APIResponse(HTTPStatus.OK, _("Payment canceled")) # Redirection
 
 
 class PayoutView(APIView):
