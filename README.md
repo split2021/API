@@ -49,7 +49,7 @@ api                                       # Project directory
 |   |
 │   │   admin.py                          # API interaction on the backoffice
 │   │   apps.py
-│   │   classviews.py                     # Base classes for API endpoints
+endpoints
 │   │   models.py                         # API database classes described
 │   │   responses.py                      # Base classes for API responses
 │   │   tests.py
@@ -66,13 +66,6 @@ api                                       # Project directory
 |   |   tests.py
 |
 └───split                                 # Project application
-│   └───templates
-|       └───admin                         # Django backoffice override
-|           |   base_site.html            # Base template override
-|       |
-|       └───split                         # Additional templates
-|           |   user_update_profile.html  # User update template
-|   |   
 |   |   admin.py                          # Backoffice configuration
 |   |   apps.py
 |   |   forms.py
@@ -80,6 +73,19 @@ api                                       # Project directory
 |   |   urls.py
 |   |   views.py                          # Additional backoffice views
 |   |   wsgi.py
+|
+└───split_dashboard                       # Application to configure the Django admin site
+│   └───templates
+|       └───admin                         # Django backoffice override
+|           |   base_site.html            # Base template override
+|       |
+|       └───split                         # Additional templates
+|           |   user_update_profile.html  # User update template
+|   |   dashboard.py                      # The Dashboard class child to override Django JET default one
+|   |   forms.py                          # The user form used in the profile page
+|   |   modules.py                        # New Django JET modules to display Calendar, Documentation and Requests graphs
+|   |   views.py                          # The user profile view
+|   |   
 |
 └───static                                # Django collected static files for production
 │   └───admin
@@ -91,6 +97,6 @@ api                                       # Project directory
 |   Dockerfile                            # Docker API container configuration
 |   manage.py                             # Django commands entry point
 |   README.md                             # This description file
-|   requirements.txt                      # Project modules required list for pip -r
+|   requirements.txt                      # Project modules required list for pip -r. We are using a custom package (django_modelapiview) as heart of our api
 │
 ```
