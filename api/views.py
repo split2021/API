@@ -3,6 +3,7 @@ from django.http import HttpRequest
 from django.utils.translation import gettext as _
 from django.contrib.auth import get_user_model
 from django.db.models.query import QuerySet
+from django.shortcuts import redirect
 
 import json
 from json import JSONDecodeError
@@ -107,7 +108,7 @@ class PaymentExecute(APIView):
         try:
             db_payment =  Payment.objects.get(payments__contains={payment_id: {'status': Payment.STATUS.PROCESSING}})
         except ObjectDoesNotExist:
-            return APIResponse(HTTPStatus.NOT_FOUND, _("Payment does not exist or is not valid")) # Redirection
+            return redirect(f"http://pp.split2021.live/#/result?title=404&msg={_('Payment does not exist or is not valid')}")
         db_payment.payments[payment_id]['status'] = Payment.STATUS.COMPLETED
         db_payment.save()
 
@@ -132,13 +133,13 @@ class PaymentExecute(APIView):
                     }]
                 })
                 if payout.create(sync_mode=False):
-                    return APIResponse(HTTPStatus.OK, _("Sucessfully completed payment")) # Redirection
+                    return redirect(f"http://pp.split2021.live/#/result?title=Complete&msg={_('Sucessfully completed payment')}")
                 else:
-                    return APIResponse(HTTPStatus.INTERNAL_SERVER_ERROR, payout.error) # Redirection
+                    return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={payout.error}")
             else:
-                return APIResponse(HTTPStatus.OK, _("Successfully executed payment")) # Redirection
+                return redirect(f"http://pp.split2021.live/#/result?title=Execute&msg={_('Successfully executed payment')}")
         else:
-            return APIResponse(HTTPStatus.INTERNAL_SERVER_ERROR, _("Failed to execute payment")) # Redirection
+            return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={_('Failed to execute payment')}")
 
 
 class PaymentCanceled(APIView):
@@ -155,10 +156,10 @@ class PaymentCanceled(APIView):
         payment_id = request.GET.get("paymentId")
         db_payment = Payment.objects.get(payments__contains=[payment_id])
         if db_payment.payments[payment_id] == Payment.STATUS.COMPLETED:
-            return APIResponse(HTTPStatus.FORBIDDEN, _("Your payment is already completed")) # Redirection
+            return APIResponse(HTTPStatus.FORBIDDEN, _("Your payment is already completed"))
         db_payment.payments[payment_id] = Payment.STATUS.FAILED
         db_payment.save()
-        return APIResponse(HTTPStatus.OK, _("Payment canceled")) # Redirection
+        return redirect(f"http://pp.split2021.live/#/result?title=Annule&msg={_('Payment canceled')}")
 
 
 class PayoutView(APIView):
