@@ -1,6 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest
 from django.utils.translation import gettext as _
+from django.contrib.auth import get_user_model
+from django.db.models.query import QuerySet
 
 import json
 from json import JSONDecodeError
@@ -11,7 +13,7 @@ from http import HTTPStatus
 import paypalrestsdk
 
 from django_modelapiview import APIView, ModelAPIView, JSONMixin
-from django_modelapiview.responses import APIResponse, NotFound
+from django_modelapiview.responses import APIResponse, NotFound, CreationSuccessful, NotAllowed, Conflict
 
 from api.models import Menu, MenuItem, User, PaymentGroup, PaymentGroupMembership, Friendship, Payment, Payment
 
@@ -51,7 +53,7 @@ class PaymentCreateView(APIView):
         target = json_data['target']
 
         payments_links = {}
-        db_payment = Payment.objects.create(group_id=group_id, currency=currency, total=total, target=target) # TODO: Create Django Issue because payments should be {} by default (according to models) but keeps its old value (concatenation)
+        db_payment = Payment.objects.create(group_id=group_id, currency=currency, total=total, target=target)
         for mail, price in users_mail.items():
             payment = paypalrestsdk.Payment({
                 "intent": "sale",
@@ -248,6 +250,20 @@ class UserView(ModelAPIView):
     route = "users"
     model = User
     enforce_authentification = True
+
+    def post(self, request:HttpRequest, queryset:QuerySet, id:int=None) -> APIResponse:
+        """
+         Create specific in collection
+        """
+        if id:
+            return NotAllowed(_("You are trying to create at a specific id. Instead use PUT to emplace or use no id"))
+
+        body = request.body.decode("utf-8")
+        json_data = json.loads(body)
+        queryset = get_user_model().objects.filter(email=json_data.get('email')) | get_user_model().objects.filter(phone=json_data.get('phone'))
+        if not queryset.exists():
+            return CreationSuccessful(_("Created %(singular_name)s") % {'singular_name': self.singular_name}, self.model.deserialize(body, id).serialize(request))
+        return Conflict("Cet utilisateur existe déjà")
 
 
 class FriendshipView(ModelAPIView):
