@@ -108,7 +108,7 @@ class PaymentExecute(APIView):
         try:
             db_payment =  Payment.objects.get(payments__contains={payment_id: {'status': Payment.STATUS.PROCESSING}})
         except ObjectDoesNotExist:
-            return redirect(f"http://pp.split2021.live/#/result?title=404&msg={_('Payment does not exist or is not valid')}")
+            return redirect(f"http://pp.split2021.live/#/result?title=404&msg={_('Ce paiement n\'existe pas ou n\'est pas valide')}")
         db_payment.payments[payment_id]['status'] = Payment.STATUS.COMPLETED
         db_payment.save()
 
@@ -133,13 +133,13 @@ class PaymentExecute(APIView):
                     }]
                 })
                 if payout.create(sync_mode=False):
-                    return redirect(f"http://pp.split2021.live/#/result?title=Complete&msg={_('Sucessfully completed payment')}")
+                    return redirect(f"http://pp.split2021.live/#/result?title=Complete&msg={_('Paiement finalisé pour votre groupe')}")
                 else:
                     return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={payout.error}")
             else:
-                return redirect(f"http://pp.split2021.live/#/result?title=Execute&msg={_('Successfully executed payment')}")
+                return redirect(f"http://pp.split2021.live/#/result?title=Execute&msg={_('Payment éxécuté pour votre utilisateur')}")
         else:
-            return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={_('Failed to execute payment')}")
+            return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={_('Une erreur est survenue à l\'éxécution de votre paiement')}")
 
 
 class PaymentCanceled(APIView):
@@ -159,7 +159,7 @@ class PaymentCanceled(APIView):
             return APIResponse(HTTPStatus.FORBIDDEN, _("Your payment is already completed"))
         db_payment.payments[payment_id] = Payment.STATUS.FAILED
         db_payment.save()
-        return redirect(f"http://pp.split2021.live/#/result?title=Annule&msg={_('Payment canceled')}")
+        return redirect(f"http://pp.split2021.live/#/result?title=Annule&msg={_('Paiement annulé')}")
 
 
 class PayoutView(APIView):
