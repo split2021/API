@@ -133,11 +133,11 @@ class PaymentExecute(APIView):
                     }]
                 })
                 if payout.create(sync_mode=False):
-                    return redirect(f"http://pp.split2021.live/#/result?title=Complete&msg={_('Paiement finalisé pour votre groupe')}")
+                    return redirect(f"http://pp.split2021.live/#/result?title=Completé&msg={_('Paiement finalisé pour votre groupe')}")
                 else:
                     return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={payout.error}")
             else:
-                return redirect(f"http://pp.split2021.live/#/result?title=Execute&msg={_('Payment éxécuté pour votre utilisateur')}")
+                return redirect(f"http://pp.split2021.live/#/result?title=Executé&msg={_('Payment éxécuté pour votre utilisateur')}")
         else:
             return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={_('Une erreur est survenue à l éxécution de votre paiement')}")
 
