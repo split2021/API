@@ -39,19 +39,19 @@ class UserAdmin(DjangoUserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'payment_methods', 'icon', 'image_tag')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser',
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'is_pro',
                                        'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'phone', 'username', 'first_name', 'last_name'),
+            'fields': ('email', 'password1', 'password2', 'phone', 'username', 'first_name', 'last_name', 'is_pro'),
         }),
     )
     filter_horizontal = ('friends', 'payment_methods', 'user_permissions', 'groups')
     readonly_fields = ('image_tag',)
-    list_display = ('email', 'first_name', 'last_name', 'is_staff')
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_pro')
     search_fields = ('email', 'first_name', 'last_name')
     ordering = ('email',)
     inlines = (PaymentGroupMembershipInline, FriendshipInline)
