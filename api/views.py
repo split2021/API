@@ -108,7 +108,7 @@ class PaymentExecute(APIView):
         try:
             db_payment =  Payment.objects.get(payments__contains={payment_id: {'status': Payment.STATUS.PROCESSING}})
         except ObjectDoesNotExist:
-            return redirect(f"http://pp.split2021.live/#/result?title=404&msg={_('Ce paiement n\'existe pas ou n\'est pas valide')}")
+            return redirect(f"http://pp.split2021.live/#/result?title=404&msg={_('Ce paiement n existe pas ou n est pas valide')}")
         db_payment.payments[payment_id]['status'] = Payment.STATUS.COMPLETED
         db_payment.save()
 
@@ -139,7 +139,7 @@ class PaymentExecute(APIView):
             else:
                 return redirect(f"http://pp.split2021.live/#/result?title=Execute&msg={_('Payment éxécuté pour votre utilisateur')}")
         else:
-            return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={_('Une erreur est survenue à l\'éxécution de votre paiement')}")
+            return redirect(f"http://pp.split2021.live/#/result?title=Erreur&msg={_('Une erreur est survenue à l éxécution de votre paiement')}")
 
 
 class PaymentCanceled(APIView):
