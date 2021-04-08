@@ -5,7 +5,7 @@ chardet==3.0.4
 comtypes==1.1.7
 coverage==5.0.4
 cryptography==3.2
-Django==3.1
+Django==3.1.8
 django-3-jet==1.0.8
 django-prettyjson==0.4.1
 django-modelapiview==1.4.13
